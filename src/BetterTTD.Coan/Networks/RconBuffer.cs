@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BetterTTD.Coan.Enums;
 
-namespace BetterTTD.Coan
+namespace BetterTTD.Coan.Networks
 {
     public class RconBuffer : IEnumerable<RconBuffer.Entry>
     {

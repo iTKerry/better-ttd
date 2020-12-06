@@ -1,28 +1,34 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 
-namespace BetterTTD.Coan.Network
+namespace BetterTTD.Coan.Networks
 {
-    public class NetworkOutputThread : NetworkThreadBase
+    public class NetworkInputThread : NetworkThreadBase
     {
         protected override void Run()
         {
             while (true)
             {
-                foreach (var q in Queues.Values)
+                foreach (var socket in Queues.Keys)
                 {
                     try
                     {
-                        var packet = q.Take();
-
-                        if (!packet.GetSocket().Connected)
+                        if (!socket.Connected)
                         {
-                            Queues.TryRemove(packet.GetSocket(), out _);
-                            break;
+                            Queues.TryRemove(socket, out _);
+                            Console.WriteLine($"Socket closed: {socket.RemoteEndPoint as IPEndPoint}");
                         }
-                        
-                        packet.Send();
-                        Console.WriteLine($"Sending Packet: {packet.GetType()}");
+
+                        var packet = new Packet(socket);
+
+                        if (packet.IsSocketCloseIndicator())
+                        {
+                            socket.Close();
+                        }
+
+                        Append(packet);
+                        Console.WriteLine($"Received packet: {packet.GetPacketType()}");
                     }
                     catch (IndexOutOfRangeException ex)
                     {

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using BetterTTD.Coan.Enums;
 
-namespace BetterTTD.Coan.Network
+namespace BetterTTD.Coan.Networks
 {
     public class Packet
     {

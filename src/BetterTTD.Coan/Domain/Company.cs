@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using BetterTTD.Coan.Enums;
-using BetterTTD.Coan.Pool;
+using BetterTTD.Coan.Pools;
 
 namespace BetterTTD.Coan.Domain
 {
@@ -24,8 +24,8 @@ namespace BetterTTD.Coan.Domain
 
         public Economy CurrentEconomy { get; set; } = new();
         public LinkedList<Economy> EconomyHistory { get; set; } = new();
-        public Dictionary<VehicleType, int> Vehicles = new();
-        public Dictionary<VehicleType, int> Stations = new();
+        public readonly Dictionary<VehicleType, int> Vehicles = new();
+        public readonly Dictionary<VehicleType, int> Stations = new();
         
         public Company(int id) : base(id)
         {

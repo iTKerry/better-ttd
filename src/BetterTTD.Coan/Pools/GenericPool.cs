@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace BetterTTD.Coan.Pool
+namespace BetterTTD.Coan.Pools
 {
     public abstract class GenericPool<TKey, TValue> : IEnumerable<TValue>
         where TValue : Poolable<TKey>
@@ -44,9 +44,9 @@ namespace BetterTTD.Coan.Pool
             return _pool[key];
         }
 
-        public bool TryRemove(TKey key)
+        public bool TryRemove(TKey key, out TValue value)
         {
-            return _pool.TryRemove(key, out _);
+            return _pool.TryRemove(key, out value);
         }
 
         public void Set(GenericPool<TKey, TValue> pool)

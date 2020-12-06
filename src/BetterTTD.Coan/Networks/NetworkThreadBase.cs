@@ -2,7 +2,7 @@
 using System.Net.Sockets;
 using System.Threading;
 
-namespace BetterTTD.Coan.Network
+namespace BetterTTD.Coan.Networks
 {
     public abstract class NetworkThreadBase
     {
@@ -13,9 +13,9 @@ namespace BetterTTD.Coan.Network
             new Thread(Run) {IsBackground = true}.Start();
         }
         
-        public void GetNext(Socket socket)
+        public Packet GetNext(Socket socket)
         {
-            GetQueue(socket).Take();
+            return GetQueue(socket).Take();
         }
 
         private void InstantiateQueue(Socket socket)
@@ -33,7 +33,7 @@ namespace BetterTTD.Coan.Network
             return result;
         }
 
-        protected void Append(Packet packet)
+        protected internal void Append(Packet packet)
         {
             GetQueue(packet.GetSocket()).Add(packet);
         }

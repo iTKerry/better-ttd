@@ -1,4 +1,4 @@
-﻿namespace BetterTTD.Coan.Pool
+﻿namespace BetterTTD.Coan.Pools
 {
     public abstract class Poolable<T>
     {

@@ -1,7 +1,7 @@
 ﻿using BetterTTD.Coan.Domain;
 using static System.Console;
 
-namespace BetterTTD.Coan.Pool
+namespace BetterTTD.Coan.Pools
 {
     public class CompanyPool : GenericPool<int, Company>
     {

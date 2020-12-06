@@ -1,5 +1,5 @@
 ﻿using BetterTTD.Coan.Enums;
-using BetterTTD.Coan.Pool;
+using BetterTTD.Coan.Pools;
 
 namespace BetterTTD.Coan.Domain
 {
@@ -17,5 +17,6 @@ namespace BetterTTD.Coan.Domain
         public NetworkLanguage Language { get; set; }
         public string NetworkAddress { get; set; }
         public GameDate GameDate { get; set; }
+        public GameDate JoinDate { get; set; }
     }
 }
