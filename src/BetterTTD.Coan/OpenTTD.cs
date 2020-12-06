@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using BetterTTD.Coan.Domain;
 using BetterTTD.Coan.Enums;
 using BetterTTD.Coan.Networks;
@@ -146,107 +147,133 @@ namespace BetterTTD.Coan
 
         public void OnServerFull()
         {
+            Console.WriteLine($"{nameof(OnServerFull)}");
         }
 
         public void OnServerBanned()
         {
+            Console.WriteLine($"{nameof(OnServerBanned)}");
         }
 
         public void OnServerError(NetworkErrorCode error)
         {
+            Console.WriteLine($"{nameof(OnServerError)}");
         }
 
         public void OnServerWelcome(Game game)
         {
+            Console.WriteLine($"{nameof(OnServerWelcome)}");
         }
 
         public void OnServerDate(GameDate date)
         {
+            Console.WriteLine($"{nameof(OnServerDate)}");
         }
 
         public void OnClientJoin(Client client)
         {
+            Console.WriteLine($"{nameof(OnClientJoin)}");
         }
 
         public void OnClientInfo(Client client)
         {
+            Console.WriteLine($"{nameof(OnClientInfo)}");
         }
 
         public void OnClientUpdate(Client client)
         {
+            Console.WriteLine($"{nameof(OnClientUpdate)}");
         }
 
         public void OnClientQuit(Client client)
         {
+            Console.WriteLine($"{nameof(OnClientQuit)}");
         }
 
         public void OnClientError(Client client, NetworkErrorCode error)
         {
+            Console.WriteLine($"{nameof(OnClientError)}");
         }
 
         public void OnCompanyNew(Company company)
         {
+            Console.WriteLine($"{nameof(OnCompanyNew)}");
         }
 
         public void OnCompanyInfo(Company company)
         {
+            Console.WriteLine($"{nameof(OnCompanyInfo)}");
         }
 
         public void OnCompanyUpdate(Company company)
         {
+            Console.WriteLine($"{nameof(OnCompanyUpdate)}");
         }
 
         public void OnCompanyStats(Company company)
         {
+            Console.WriteLine($"{nameof(OnCompanyStats)}");
         }
 
         public void OnCompanyEconomy(Company company)
         {
+            Console.WriteLine($"{nameof(OnCompanyEconomy)}");
         }
 
         public void OnCompanyRemove(Company company, AdminCompanyRemoveReason crr)
         {
+            Console.WriteLine($"{nameof(OnCompanyRemove)}");
         }
 
         public void OnRcon(RconBuffer rconBuffer)
         {
+            Console.WriteLine($"{nameof(OnRcon)}");
         }
 
         public void OnChat(NetworkAction action, DestType destType, Client client, string message, BigInteger data)
         {
+            Console.WriteLine($"{nameof(OnChat)}");
         }
 
         public void OnNewGame()
         {
+            Console.WriteLine($"{nameof(OnNewGame)}");
         }
 
         public void OnShutdown()
         {
+            Console.WriteLine($"{nameof(OnShutdown)}");
         }
 
         public void OnProtocol(Protocol protocol)
         {
+            Console.WriteLine($"{nameof(OnProtocol)}");
         }
 
         public void OnConsole(string origin, string message)
         {
+            Console.WriteLine($"{nameof(OnConsole)}");
         }
 
         public void OnCmdLogging(Client client, Company company, DoCommandName command, long p1, long p2, long tile,
             string text, long frame)
         {
+            Console.WriteLine($"{nameof(OnCmdLogging)}");
         }
 
         public void OnGameScript(string json)
         {
+            Console.WriteLine($"{nameof(OnGameScript)}");
         }
 
         public void OnPong(long payload)
         {
+            Console.WriteLine($"{nameof(OnPong)}");
         }
 
         public void OnPause(PauseMode pm, bool paused)
         {
+            Console.WriteLine($"{nameof(OnPause)}");
         }
     }
 }
