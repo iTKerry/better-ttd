@@ -22,7 +22,7 @@ namespace BetterTTD.Coan.Networks
                         }
                         
                         packet.Send();
-                        Console.WriteLine($"Sending Packet: {packet.GetType()}");
+                        Console.WriteLine($"Sending Packet: {packet.GetPacketType()}");
                     }
                     catch (IndexOutOfRangeException ex)
                     {

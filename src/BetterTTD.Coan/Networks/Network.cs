@@ -10,17 +10,14 @@ namespace BetterTTD.Coan.Networks
         
         public Socket Socket { get; private set; }
         public OpenTTD OpenTTD { get; }
-        public Protocol Protocol { get; }
-        public NetworkThreadBase InputThread { get; }
-        public NetworkThreadBase OutputThread { get; }
+        public Protocol Protocol { get; } = new();
+        public NetworkThreadBase InputThread { get; } = new NetworkInputThread();
+        public NetworkThreadBase OutputThread { get; } = new NetworkOutputThread();
 
         public Network(OpenTTD ottd)
         {
             OpenTTD = ottd;
-            Protocol = new Protocol();
             _networkClient = new NetworkClient(this);
-            InputThread = new NetworkInputThread();
-            OutputThread = new NetworkOutputThread();
         }
 
         public bool Connect(string host, int port)
@@ -49,7 +46,9 @@ namespace BetterTTD.Coan.Networks
 
         public bool IsConnected()
         {
-            return Socket != null && Socket.Connected;
+            var part1 = Socket.Poll(1000, SelectMode.SelectRead);
+            var part2 = Socket.Available == 0;
+            return !part1 || !part2;
         }
 
         public void Disconnect()

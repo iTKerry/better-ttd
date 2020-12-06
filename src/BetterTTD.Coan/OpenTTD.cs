@@ -35,9 +35,13 @@ namespace BetterTTD.Coan
 
         public bool Connect()
         {
-            var connect = Network.Connect(HostName, Port);
+            if (!Network.Connect(HostName, Port))
+            {
+                return false;
+            }
+            
             Network.Receive();
-            return connect;
+            return true;
         }
 
         protected void RegisterUpdateFrequency(AdminUpdateType type, AdminUpdateFrequency freq)

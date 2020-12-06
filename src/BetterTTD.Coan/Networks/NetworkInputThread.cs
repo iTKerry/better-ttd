@@ -18,6 +18,7 @@ namespace BetterTTD.Coan.Networks
                         {
                             Queues.TryRemove(socket, out _);
                             Console.WriteLine($"Socket closed: {socket.RemoteEndPoint as IPEndPoint}");
+                            continue;
                         }
 
                         var packet = new Packet(socket);
@@ -29,11 +30,6 @@ namespace BetterTTD.Coan.Networks
 
                         Append(packet);
                         Console.WriteLine($"Received packet: {packet.GetPacketType()}");
-                    }
-                    catch (IndexOutOfRangeException ex)
-                    {
-                        Console.WriteLine($"EX: {nameof(IndexOutOfRangeException)} ERR: Packet size > SEND_MTU?");
-                        Console.WriteLine(ex.Message);
                     }
                     catch (SocketException ex)
                     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using BetterTTD.Coan.Enums;
@@ -11,7 +12,7 @@ namespace BetterTTD.Coan.Networks
         private const int PosPacketType = 2;
 
         private int _pos;
-        private PacketType? _type;
+        private PacketType _type;
         private readonly byte[] _buf;
         private readonly Socket _socket;
 
@@ -19,9 +20,8 @@ namespace BetterTTD.Coan.Networks
         {
             _socket = socket;
             _buf = new byte[SendMtu];
-            _pos = PosPacketType + 1;
-            
             SetPacketType(type);
+            _pos = PosPacketType + 1;
         }
 
         public Packet(Socket socket)
@@ -61,17 +61,28 @@ namespace BetterTTD.Coan.Networks
 
         public PacketType GetPacketType()
         {
-            _type ??= (PacketType) (_buf[PosPacketType] & 0xFF);
-            return (PacketType) _type;
+            if (_type == 0)
+            {
+                if (PosPacketType == _buf.Length)
+                {
+                    _type = (PacketType) (_buf.Last() & 0xFF);
+                }
+                else
+                {
+                    _type = (PacketType) (_buf[PosPacketType] & 0xFF);
+                }
+            }
+
+            return _type;
         }
 
         public bool IsSocketCloseIndicator() =>
             GetPacketType() switch
             {
                 PacketType.ADMIN_PACKET_SERVER_FULL or
-                    PacketType.ADMIN_PACKET_SERVER_BANNED or
-                    PacketType.ADMIN_PACKET_SERVER_ERROR or
-                    PacketType.ADMIN_PACKET_SERVER_SHUTDOWN => true,
+                PacketType.ADMIN_PACKET_SERVER_BANNED or
+                PacketType.ADMIN_PACKET_SERVER_ERROR or
+                PacketType.ADMIN_PACKET_SERVER_SHUTDOWN => true,
                 _ => false
             };
 

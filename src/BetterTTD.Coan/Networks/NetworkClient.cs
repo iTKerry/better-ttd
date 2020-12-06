@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
+using System.Threading;
 using BetterTTD.Coan.Domain;
 using BetterTTD.Coan.Enums;
 
@@ -19,10 +21,17 @@ namespace BetterTTD.Coan.Networks
 
         public void Run()
         {
-            while (_network.IsConnected())
+            new Thread(() =>
             {
-                Receive();
-            }
+                Thread.CurrentThread.IsBackground = true;
+
+                while (_network.IsConnected())
+                {
+                    Receive();
+                }
+                
+                Thread.CurrentThread.Abort();
+            }).Start();
         }
 
         public void Send(PacketType type)
@@ -33,28 +42,30 @@ namespace BetterTTD.Coan.Networks
 
         private void Receive()
         {
-            try
-            {
-                var packet = _network.InputThread.GetNext(_network.Socket);
-                DelegatePacket(packet);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            var packet = _network.InputThread.GetNext(_network.Socket);
+            DelegatePacket(packet);
         }
 
         private void DelegatePacket(Packet packet)
         {
             var type = GetType();
             var dispatchName = packet.GetPacketType().GetDispatchName();
-            var method = type.GetMethod(dispatchName);
+            //var method = type.GetMethod(dispatchName, BindingFlags.IgnoreCase);
 
+            var method = type.GetMethods().FirstOrDefault(m =>
+                string.Equals(m.Name, dispatchName, StringComparison.InvariantCultureIgnoreCase));
+            
             if (method is null)
                 Console.WriteLine($"Method not found for name: {dispatchName}");
 
-            method?.Invoke(this, new object[] {_network.OpenTTD, packet});
+            if (method?.GetParameters().Any() ?? false)
+            {
+                method.Invoke(this, new object[] {_network.OpenTTD, packet});
+            }
+            else
+            {
+                method?.Invoke(this, Array.Empty<object>());
+            }
         }
 
         private void HandleCmdPause(long p1, long p2)
