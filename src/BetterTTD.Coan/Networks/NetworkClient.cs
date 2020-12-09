@@ -148,8 +148,8 @@ namespace BetterTTD.Coan.Networks
 
         public void SendAdminUpdateFrequency(AdminUpdateType type, AdminUpdateFrequency freq)
         {
-            //if (!network.getProtocol().isSupported(type, freq))
-            //    throw new IllegalArgumentException("The server does not support " + freq + " for " + type);
+            if (_network.Protocol.IsSupported(type, freq))
+                throw new ArgumentException($"The server does not support {freq} for {nameof(type)}");
 
             var packet = new Packet(_network.Socket, PacketType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY);
             packet.WriteUint16((int) type);
