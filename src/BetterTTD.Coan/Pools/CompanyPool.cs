@@ -1,4 +1,4 @@
-﻿using BetterTTD.Coan.Domain;
+﻿using BetterTTD.Domain.Entities;
 using static System.Console;
 
 namespace BetterTTD.Coan.Pools

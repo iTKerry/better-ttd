@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using BetterTTD.Coan.Enums;
-using BetterTTD.Coan.Pools;
+using BetterTTD.Domain.Entities.Base;
+using BetterTTD.Domain.Enums;
 
-namespace BetterTTD.Coan.Domain
+namespace BetterTTD.Domain.Entities
 {
     public class Company : Poolable<int>
     {

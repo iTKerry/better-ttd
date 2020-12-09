@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace BetterTTD.Coan.Enums
+namespace BetterTTD.Domain.Enums
 {
     public enum PacketType
     {

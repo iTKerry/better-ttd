@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Threading;
-using BetterTTD.Coan.Domain;
-using BetterTTD.Coan.Enums;
+using BetterTTD.Domain.Entities;
+using BetterTTD.Domain.Enums;
 
 namespace BetterTTD.Coan.Networks
 {

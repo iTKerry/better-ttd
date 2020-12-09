@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BetterTTD.Coan.Domain
+namespace BetterTTD.Domain.Entities
 {
     public class GameDate
     {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Numerics;
-using BetterTTD.Coan.Domain;
-using BetterTTD.Coan.Enums;
 using BetterTTD.Coan.Networks;
+using BetterTTD.Domain.Entities;
+using BetterTTD.Domain.Enums;
 
 namespace BetterTTD.Coan
 {
@@ -46,7 +46,7 @@ namespace BetterTTD.Coan
 
         protected void RegisterUpdateFrequency(AdminUpdateType type, AdminUpdateFrequency freq)
         {
-            Network.SendAdminUpdateFrequency(type, freq);
+            //Network.SendAdminUpdateFrequency(type, freq);
         }
 
         public void PollAll()
@@ -111,7 +111,7 @@ namespace BetterTTD.Coan
 
         public void SendAdminUpdateFrequency(AdminUpdateType type, AdminUpdateFrequency freq)
         {
-            Network.SendAdminUpdateFrequency(type, freq);
+            //Network.SendAdminUpdateFrequency(type, freq);
         }
 
         public void SendAdminRcon(string command)
@@ -126,7 +126,7 @@ namespace BetterTTD.Coan
 
         public void SendAdminChat(NetworkAction action, DestType type, long dest, string message, long data)
         {
-            Network.SendAdminChat(action, type, dest, message, data);
+            //Network.SendAdminChat(action, type, dest, message, data);
         }
 
         public void SendAdminGameScript(string json)

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using BetterTTD.Domain.Entities;
+using BetterTTD.Domain.Entities.Base;
 
 namespace BetterTTD.Coan.Pools
 {

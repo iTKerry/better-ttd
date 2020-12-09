@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using BetterTTD.Coan.Enums;
+using BetterTTD.Domain.Enums;
 
-namespace BetterTTD.Coan.Domain
+namespace BetterTTD.Domain.Entities
 {
     public class Game
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
-using BetterTTD.Coan.Enums;
+using BetterTTD.Domain.Enums;
 
 namespace BetterTTD.Coan.Networks
 {

@@ -1,7 +1,7 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 
-namespace BetterTTD.Coan.Domain
+namespace BetterTTD.Domain.Entities
 {
     public class DoCommandName
     {

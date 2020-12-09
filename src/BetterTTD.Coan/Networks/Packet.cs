@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using BetterTTD.Coan.Enums;
+using BetterTTD.Domain.Enums;
 
 namespace BetterTTD.Coan.Networks
 {
