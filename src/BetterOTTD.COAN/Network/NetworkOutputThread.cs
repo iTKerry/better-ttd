@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
-using BetterOTTD.COAN.Network;
 
-namespace COAN
+namespace BetterOTTD.COAN.Network
 {
     class NetworkOutputThread
     {

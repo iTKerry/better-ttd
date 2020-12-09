@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BetterOTTD.COAN\BetterOTTD.COAN.csproj" />
       <ProjectReference Include="..\BetterTTD.Coan_OLD\BetterTTD.Coan_OLD.csproj" />
     </ItemGroup>
 

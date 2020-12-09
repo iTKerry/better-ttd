@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Threading;
 using System.Net.Sockets;
+using System.Threading;
 using BetterOTTD.COAN.Common;
-using BetterOTTD.COAN.Network;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 
-namespace COAN
+namespace BetterOTTD.COAN.Network
 {
     public class NetworkClient
     {
@@ -22,39 +21,31 @@ namespace COAN
         public int adminPort = 3978;
 
         #region Delegates
-        /// <summary>
-        /// Fired when messages are recieved
-        /// </summary>
-        /// <param name="action"></param>
-        /// <param name="dest"></param>
-        /// <param name="clientId">The ID of the Client who sent the message</param>
-        /// <param name="message">The actual chat message</param>
-        /// <param name="data"></param>
-        public delegate void onChat(NetworkAction action, DestType dest, long clientId, string message, long data);
-        /// <summary>
-        /// Fired when Client information is received
-        /// </summary>
-        /// <param name="client">The Client information</param>
+        
+        public delegate void onChat(string origin, string message);
         public delegate void onClientInfo(Client client);
         public delegate void onProtocol(Protocol protocol);
         public delegate void onWelcome();
+        
         #endregion
 
         #region Events
+        
         public event onChat OnChat;
         public event onClientInfo OnClientInfo;
         public event onProtocol OnProtocol;
         public event onWelcome OnServerWelcome;
+        
         #endregion
 
         public NetworkClient()
         {
-            this.protocol = new Protocol();
+            protocol = new Protocol();
             mThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
 
-                while (IsConnected() == true)
+                while (IsConnected())
                     receive();
 
                 Thread.CurrentThread.Abort();
@@ -63,15 +54,15 @@ namespace COAN
 
         public void Connect(string hostname, int port, string password)
         {
-            this.adminHost = hostname;
-            this.adminPort = port;
-            this.adminPassword = password;
-            this.Connect();
+            adminHost = hostname;
+            adminPort = port;
+            adminPassword = password;
+            Connect();
         }
 
         public void Connect()
         {
-            if (Connect(this.adminHost, this.adminPort) == true)
+            if (Connect(adminHost, adminPort))
                 Start();
         }
 
@@ -84,9 +75,9 @@ namespace COAN
             }
             try
             {
-                this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                this.socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                this.socket.Connect(host, port);
+                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                socket.Connect(host, port);
 
                 sendAdminJoin();
             }
@@ -129,7 +120,7 @@ namespace COAN
 
         public void delegatePacket(Packet p)
         {
-            Type t = this.GetType();
+            Type t = GetType();
             String dispatchName = p.getType().getDispatchName();
 
             System.Reflection.MethodInfo method = t.GetMethod(dispatchName);
@@ -252,18 +243,15 @@ namespace COAN
         #region Receive Packets
         public void receiveServerClientInfo(Packet p)
         {
-            Client client = new Client(p.readUint32())
+            var client = new Client(p.readUint32())
             {
-                NetworkAddress = p.readString(), Name = p.readString()
+                NetworkAddress = p.readString(),
+                Name = p.readString(),
+                Language = (NetworkLanguage) p.readUint8(),
+                JoinDate = new GameDate(p.readUint32()),
+                CompanyId = p.readUint8()
             };
-
-            //client.language = NetworkLanguage.valueOf(p.readUint8());
-            p.readUint8();
-            client.JoinDate = new GameDate(p.readUint32());
-            client.CompanyId = p.readUint8();
-
             Console.WriteLine($@"{nameof(receiveServerClientInfo)}: ID {client.Id}; Name: {client.Name}");
-
             OnClientInfo?.Invoke(client);
         }
 
@@ -316,13 +304,10 @@ namespace COAN
 
         public void receiveServerConsole(Packet p)
         {
-            NetworkAction action = (NetworkAction) p.readUint8();
-            DestType dest = (DestType) p.readUint8();
-            long clientId = p.readUint32();
-            String message = p.readString();
-            long data = p.readUint64();
-
-            OnChat?.Invoke(action, dest, clientId, message, data);
+            var origin = p.readString();
+            var message = p.readString();
+            
+            OnChat?.Invoke(origin, message);
         }
 
         public void receiveServerCmdNames(Packet p)
@@ -345,12 +330,12 @@ namespace COAN
         #region Getters
         public Socket getSocket()
         {
-            return this.socket;
+            return socket;
         }
 
         public Protocol getProtocol()
         {
-            return this.protocol;
+            return protocol;
         }
         #endregion
 

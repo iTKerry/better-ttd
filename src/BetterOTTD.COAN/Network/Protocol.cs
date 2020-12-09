@@ -35,7 +35,7 @@ namespace BetterOTTD.COAN.Network
 
         public int getVersion()
         {
-            return this.version;
+            return version;
         }
     }
 }

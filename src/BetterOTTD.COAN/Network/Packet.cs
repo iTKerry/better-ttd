@@ -19,9 +19,9 @@ namespace BetterOTTD.COAN.Network
         public Packet(Socket socket, PacketType type)
         {
             this.socket = socket;
-            this.buf = new byte[SEND_MTU];
-            this.SetType(type);
-            this.pos = POS_PACKET_TYPE + 1;
+            buf = new byte[SEND_MTU];
+            SetType(type);
+            pos = POS_PACKET_TYPE + 1;
             
         }
 
@@ -32,18 +32,18 @@ namespace BetterOTTD.COAN.Network
             if (socket.Connected == false)
                 return;
 
-            int leng = socket.Receive(this.buf);
+            int leng = socket.Receive(buf);
 
             if (leng == 0)
                 throw new SocketException();
 
-            this.pos = POS_PACKET_TYPE + 1;
+            pos = POS_PACKET_TYPE + 1;
         }
 
         public int length()
         {
-            int b1 = this.buf[0] & 0xFF;
-            int b2 = this.buf[1] & 0xFF;
+            int b1 = buf[0] & 0xFF;
+            int b2 = buf[1] & 0xFF;
 
             int r = (b1 + (b2 << 8));
 
@@ -52,85 +52,85 @@ namespace BetterOTTD.COAN.Network
 
         public Socket getSocket()
         {
-            return this.socket;
+            return socket;
         }
 
         void SetType(PacketType type)
         {
-            this.buf[POS_PACKET_TYPE] = (byte)type;
+            buf[POS_PACKET_TYPE] = (byte)type;
         }
 
         public PacketType getType()
         {
-            if (this.type == 0)
+            if (type == 0)
             {
-                PacketType t = (PacketType)(this.buf[POS_PACKET_TYPE] & 0xFF);
-                this.type = t;// PacketType.valueOf(this.buf[POS_PACKET_TYPE] & 0xFF);
+                PacketType t = (PacketType)(buf[POS_PACKET_TYPE] & 0xFF);
+                type = t;// PacketType.valueOf(this.buf[POS_PACKET_TYPE] & 0xFF);
             }
 
-            return this.type;
+            return type;
         }
 
         public void WriteString(string str)
         {
             foreach (byte b in Encoding.Default.GetBytes(str))
             {
-                this.buf[this.pos++] = b;
+                buf[pos++] = b;
             }
-            this.buf[this.pos++] = (byte)'\0';
+            buf[pos++] = (byte)'\0';
 
         }
 
         public void writeUint8(short n)
         {
-            this.buf[this.pos++] = (byte)n;
+            buf[pos++] = (byte)n;
         }
 
         public void writeUint16(int n)
         {
-            this.buf[this.pos++] = (byte)n;
-            this.buf[this.pos++] = (byte)(n >> 8);
+            buf[pos++] = (byte)n;
+            buf[pos++] = (byte)(n >> 8);
         }
 
         public void writeUint32(long n)
         {
-            this.buf[this.pos++] = (byte)n;
-            this.buf[this.pos++] = (byte)(n >> 8);
-            this.buf[this.pos++] = (byte)(n >> 16);
-            this.buf[this.pos++] = (byte)(n >> 24);
+            buf[pos++] = (byte)n;
+            buf[pos++] = (byte)(n >> 8);
+            buf[pos++] = (byte)(n >> 16);
+            buf[pos++] = (byte)(n >> 24);
         }
 
         public void writeUint64(long n)
         {
-            this.buf[this.pos++] = (byte)n;
-            this.buf[this.pos++] = (byte)(n >> 8);
-            this.buf[this.pos++] = (byte)(n >> 16);
-            this.buf[this.pos++] = (byte)(n >> 24);
-            this.buf[this.pos++] = (byte)(n >> 32);
-            this.buf[this.pos++] = (byte)(n >> 40);
-            this.buf[this.pos++] = (byte)(n >> 48);
-            this.buf[this.pos++] = (byte)(n >> 56);
+            buf[pos++] = (byte)n;
+            buf[pos++] = (byte)(n >> 8);
+            buf[pos++] = (byte)(n >> 16);
+            buf[pos++] = (byte)(n >> 24);
+            buf[pos++] = (byte)(n >> 32);
+            buf[pos++] = (byte)(n >> 40);
+            buf[pos++] = (byte)(n >> 48);
+            buf[pos++] = (byte)(n >> 56);
         }
 
         public int readUint8()
         {
-            return (this.buf[this.pos++] & 0xFF);
+            return (buf[pos++] & 0xFF);
         }
 
         public int readUint16()
         {
-            int n = this.buf[this.pos++] & 0xFF;
-            n += (this.buf[this.pos++] & 0xFF) << 8;
+            int n = buf[pos++] & 0xFF;
+            n += (buf[pos++] & 0xFF) << 8;
 
             return n;
         }
 
         public long readUint32()
         {
-            long n = this.buf[this.pos++] & 0xFF;
-            n += (this.buf[this.pos++] & 0xFF) << 8;
-            n += (this.buf[this.pos++] & 0xFF) << 16;
-            n += (this.buf[this.pos++] & 0xFF) << 24;
+            long n = buf[pos++] & 0xFF;
+            n += (buf[pos++] & 0xFF) << 8;
+            n += (buf[pos++] & 0xFF) << 16;
+            n += (buf[pos++] & 0xFF) << 24;
 
             return n;
         }
@@ -138,14 +138,14 @@ namespace BetterOTTD.COAN.Network
         public long readUint64()
         {
             long l = 0;
-            l += (long)(this.buf[this.pos++] & 0xFF);
-            l += (long)(this.buf[this.pos++] & 0xFF) << 8;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 16;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 24;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 32;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 40;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 48;
-            l += (long)(this.buf[this.pos++] & 0xFF) << 56;
+            l += (long)(buf[pos++] & 0xFF);
+            l += (long)(buf[pos++] & 0xFF) << 8;
+            l += (long)(buf[pos++] & 0xFF) << 16;
+            l += (long)(buf[pos++] & 0xFF) << 24;
+            l += (long)(buf[pos++] & 0xFF) << 32;
+            l += (long)(buf[pos++] & 0xFF) << 40;
+            l += (long)(buf[pos++] & 0xFF) << 48;
+            l += (long)(buf[pos++] & 0xFF) << 56;
 
             return l;
         }
@@ -153,14 +153,14 @@ namespace BetterOTTD.COAN.Network
         public String readString()
         {
             String str = "";
-            int startIdx = this.pos;
+            int startIdx = pos;
 
-            while (this.buf[this.pos++] != (byte)'\0') ;
+            while (buf[pos++] != (byte)'\0') ;
 
-            int endIdx = this.pos - startIdx - 1;
+            int endIdx = pos - startIdx - 1;
 
-            str = Encoding.GetEncoding("UTF-8").GetString(this.buf);
-            str = str.Substring(startIdx, (this.pos - startIdx));
+            str = Encoding.GetEncoding("UTF-8").GetString(buf);
+            str = str.Substring(startIdx, (pos - startIdx));
             
             return str;
         }
@@ -168,16 +168,16 @@ namespace BetterOTTD.COAN.Network
 
         public bool readBool()
         {
-            return (this.buf[this.pos++] & 0xFF) > 0;
+            return (buf[pos++] & 0xFF) > 0;
         }
 
 
         public void Send()
         {
-            this.buf[0] = (byte)this.pos;
-            this.buf[1] = (byte)(this.pos >> 8);
+            buf[0] = (byte)pos;
+            buf[1] = (byte)(pos >> 8);
 
-            this.socket.Send(buf, this.pos, SocketFlags.None);
+            socket.Send(buf, pos, SocketFlags.None);
         }
 
     }
