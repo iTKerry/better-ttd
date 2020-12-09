@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 
-namespace BetterTTD.Coan.Networks
+namespace BetterTTD.Coan_OLD.Networks
 {
     public class NetworkOutputThread : NetworkThreadBase
     {

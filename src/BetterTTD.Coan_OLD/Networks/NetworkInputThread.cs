@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace BetterTTD.Coan.Networks
+namespace BetterTTD.Coan_OLD.Networks
 {
     public class NetworkInputThread : NetworkThreadBase
     {

@@ -5,7 +5,7 @@ using System.Threading;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 
-namespace BetterTTD.Coan.Networks
+namespace BetterTTD.Coan_OLD.Networks
 {
     public class NetworkClient
     {
@@ -570,7 +570,7 @@ namespace BetterTTD.Coan.Networks
                 var cmdId = p.ReadUint16();
                 var cmdName = p.ReadString();
 
-                DoCommandName.Create(cmdName, cmdId);
+                //DoCommandName.Create(cmdName, cmdId);
             }
         }
 
@@ -599,6 +599,7 @@ namespace BetterTTD.Coan.Networks
                 return;
             }
 
+            /*
             var command = DoCommandName.ValueOf(commandId);
 
             if (command == null)
@@ -613,6 +614,7 @@ namespace BetterTTD.Coan.Networks
             }
 
             ottd.OnCmdLogging(client, company, command, p1, p2, tile, text, frame);
+            */
         }
 
         public void ReceiveServerGameScript(OpenTTD ottd, Packet p)

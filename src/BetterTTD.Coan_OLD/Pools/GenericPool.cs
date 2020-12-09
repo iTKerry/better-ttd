@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Entities.Base;
 
-namespace BetterTTD.Coan.Pools
+namespace BetterTTD.Coan_OLD.Pools
 {
     public abstract class GenericPool<TKey, TValue> : IEnumerable<TValue>
         where TValue : Poolable<TKey>

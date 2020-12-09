@@ -1,6 +1,6 @@
-﻿using BetterTTD.Coan.Pools;
+﻿using BetterTTD.Coan_OLD.Pools;
 
-namespace BetterTTD.Coan
+namespace BetterTTD.Coan_OLD
 {
     public class Pool
     {

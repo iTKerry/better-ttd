@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Numerics;
-using BetterTTD.Coan.Networks;
+using BetterTTD.Coan_OLD.Networks;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 
-namespace BetterTTD.Coan
+namespace BetterTTD.Coan_OLD
 {
     public class OpenTTD
     {

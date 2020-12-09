@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BetterTTD.Domain.Enums;
 
-namespace BetterTTD.Coan.Networks
+namespace BetterTTD.Coan_OLD.Networks
 {
     public class Protocol
     {
