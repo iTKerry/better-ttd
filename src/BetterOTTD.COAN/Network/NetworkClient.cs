@@ -118,7 +118,7 @@ namespace BetterOTTD.COAN.Network
             }
         }
 
-        public void delegatePacket(Packet p)
+        private void delegatePacket(Packet p)
         {
             Type t = GetType();
             String dispatchName = p.getType().getDispatchName();
@@ -129,6 +129,10 @@ namespace BetterOTTD.COAN.Network
 
             try
             {
+                if (method is null)
+                {
+                    Console.WriteLine($"Method with name {dispatchName} not found!");
+                }
                 method?.Invoke(this, new object[] { p });
             }
             catch (NullReferenceException)
@@ -255,6 +259,21 @@ namespace BetterOTTD.COAN.Network
             OnClientInfo?.Invoke(client);
         }
 
+        public void receiveServerClientError(Packet p)
+        {
+            //_network.Disconnect();
+            var error = (NetworkErrorCode) p.readUint8();
+            Console.WriteLine($"ERROR CAPTURED: {error.ToString()}");
+        }
+        
+        public void receiveServerClientJoin(Packet p)
+        {
+            var clientId = p.readUint32();
+
+            pollClientInfos(clientId);
+            Console.WriteLine($"Unknown client joined #{clientId}");
+        }
+
         public void receiveServerProtocol(Packet p)
         {
             Protocol protocol = getProtocol();
@@ -325,7 +344,7 @@ namespace BetterOTTD.COAN.Network
         {
 
         }
-        #endregion
+        #endregion,
 
         #region Getters
         public Socket getSocket()
