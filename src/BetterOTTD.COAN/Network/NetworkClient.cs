@@ -9,9 +9,9 @@ namespace BetterOTTD.COAN.Network
 {
     public class NetworkClient
     {
-        private Protocol protocol;
-        private Socket socket;
-        private Thread mThread;
+        private readonly Protocol _protocol;
+        private Socket _socket;
+        private readonly Thread _mThread;
 
         public string botName = "Bot Name";
         public string botVersion = "BOT VERSION";
@@ -40,8 +40,8 @@ namespace BetterOTTD.COAN.Network
 
         public NetworkClient()
         {
-            protocol = new Protocol();
-            mThread = new Thread(() =>
+            _protocol = new Protocol();
+            _mThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
 
@@ -75,9 +75,9 @@ namespace BetterOTTD.COAN.Network
             }
             try
             {
-                socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-                socket.Connect(host, port);
+                _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+                _socket.Connect(host, port);
 
                 sendAdminJoin();
             }
@@ -89,8 +89,6 @@ namespace BetterOTTD.COAN.Network
             return true;
         }
 
-
-
         public void chatPublic(string msg)
         {
             sendAdminChat(NetworkAction.NETWORK_ACTION_CHAT, DestType.DESTTYPE_BROADCAST, 0, msg, 0);
@@ -98,19 +96,19 @@ namespace BetterOTTD.COAN.Network
 
         public Boolean IsConnected()
         {
-            return socket.Connected;
+            return _socket.Connected;
         }
 
         public void Start()
         {
-            mThread.Start();
+            _mThread.Start();
         }
 
         public void receive()
         {
             try
             {
-                Packet p = NetworkInputThread.getNext(getSocket());
+                Packet p = NetworkInputThread.getNext(_socket);
                 delegatePacket(p);
             }
             catch (Exception)
@@ -185,7 +183,7 @@ namespace BetterOTTD.COAN.Network
 
         public void sendAdminJoin()
         {
-            Packet p = new Packet(getSocket(), PacketType.ADMIN_PACKET_ADMIN_JOIN);
+            Packet p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_JOIN);
 
             p.WriteString(adminPassword);
             p.WriteString(botName);
@@ -196,7 +194,7 @@ namespace BetterOTTD.COAN.Network
 
         public void sendAdminChat(NetworkAction action, DestType type, long dest, String msg, long data)
         {
-            Packet p = new Packet(getSocket(), PacketType.ADMIN_PACKET_ADMIN_CHAT);
+            Packet p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_CHAT);
             p.writeUint8((short)action);
             p.writeUint8((short)type);
             p.writeUint32(dest);
@@ -211,7 +209,7 @@ namespace BetterOTTD.COAN.Network
 
         public void sendAdminGameScript(string command)
         {
-            Packet p = new Packet(getSocket(), PacketType.ADMIN_PACKET_ADMIN_GAMESCRIPT);
+            Packet p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_GAMESCRIPT);
 
 
             p.WriteString(command); // JSON encode
@@ -220,10 +218,10 @@ namespace BetterOTTD.COAN.Network
 
         public void sendAdminUpdateFrequency(AdminUpdateType type, AdminUpdateFrequency freq)
         {
-            if (getProtocol().isSupported(type, freq) == false)
+            if (_protocol.isSupported(type, freq) == false)
                 throw new ArgumentException("The server does not support " + freq + " for " + type);
 
-            Packet p = new Packet(getSocket(), PacketType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY);
+            Packet p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY);
             p.writeUint16((int)type);
             p.writeUint16((int)freq);
 
@@ -232,10 +230,10 @@ namespace BetterOTTD.COAN.Network
 
         public void sendAdminPoll(AdminUpdateType type, long data = 0)
         {
-            if (getProtocol().isSupported(type, AdminUpdateFrequency.ADMIN_FREQUENCY_POLL) == false)
+            if (_protocol.isSupported(type, AdminUpdateFrequency.ADMIN_FREQUENCY_POLL) == false)
                 throw new ArgumentException("The server does not support polling for " + type);
 
-            Packet p = new Packet(getSocket(), PacketType.ADMIN_PACKET_ADMIN_POLL);
+            Packet p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_POLL);
             p.writeUint8((short)type);
             p.writeUint32(data);
 
@@ -276,9 +274,7 @@ namespace BetterOTTD.COAN.Network
 
         public void receiveServerProtocol(Packet p)
         {
-            Protocol protocol = getProtocol();
-
-            protocol.version = p.readUint8();
+            _protocol.version = p.readUint8();
 
             while (p.readBool())
             {
@@ -291,12 +287,12 @@ namespace BetterOTTD.COAN.Network
 
                     if (index != 0)
                     {
-                        protocol.addSupport(tIndex, (int)freq);
+                        _protocol.addSupport(tIndex, (int)freq);
                     }
                 }
             }
 
-            OnProtocol?.Invoke(protocol);
+            OnProtocol?.Invoke(_protocol);
         }
 
         public void receiveServerWelcome(Packet p)
@@ -344,19 +340,7 @@ namespace BetterOTTD.COAN.Network
         {
 
         }
-        #endregion,
-
-        #region Getters
-        public Socket getSocket()
-        {
-            return socket;
-        }
-
-        public Protocol getProtocol()
-        {
-            return protocol;
-        }
+        
         #endregion
-
     }
 }
