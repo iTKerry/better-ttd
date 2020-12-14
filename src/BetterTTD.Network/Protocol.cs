@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using BetterTTD.Domain.Enums;
 
-namespace BetterOTTD.COAN.Network
+namespace BetterTTD.Network
 {
     public class Protocol
     {
-        internal int version = -1;
+        public int Version { get; set; } = -1;
         protected Dictionary<AdminUpdateType, ArrayList> supportedFrequencies;
 
         public Protocol()
@@ -31,11 +31,6 @@ namespace BetterOTTD.COAN.Network
         public bool isSupported(AdminUpdateType type, AdminUpdateFrequency freq)
         {
             return supportedFrequencies[type].Contains(freq);
-        }
-
-        public int getVersion()
-        {
-            return version;
         }
     }
 }

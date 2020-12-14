@@ -4,6 +4,7 @@ using System.Threading;
 using BetterOTTD.COAN.Common;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
+using BetterTTD.Network;
 
 namespace BetterOTTD.COAN.Network
 {
@@ -274,7 +275,7 @@ namespace BetterOTTD.COAN.Network
 
         public void receiveServerProtocol(Packet p)
         {
-            _protocol.version = p.readUint8();
+            _protocol.Version = p.readUint8();
 
             while (p.readBool())
             {

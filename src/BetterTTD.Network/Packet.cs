@@ -3,7 +3,7 @@ using System.Net.Sockets;
 using System.Text;
 using BetterTTD.Domain.Enums;
 
-namespace BetterOTTD.COAN.Network
+namespace BetterTTD.Network
 {
     public class Packet
     {
@@ -22,7 +22,6 @@ namespace BetterOTTD.COAN.Network
             buf = new byte[SEND_MTU];
             SetType(type);
             pos = POS_PACKET_TYPE + 1;
-            
         }
 
         public Packet(Socket socket)

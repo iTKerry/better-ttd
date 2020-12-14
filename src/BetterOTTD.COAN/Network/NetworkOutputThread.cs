@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
+using BetterTTD.Network;
 
 namespace BetterOTTD.COAN.Network
 {
