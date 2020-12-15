@@ -1,18 +1,31 @@
 ﻿using System.Net.Sockets;
 using BetterTTD.Domain.Enums;
+using CSharpFunctionalExtensions;
 
 namespace BetterTTD.Network
 {
+    public abstract record AppError;
+
+    public record NullError(string PropName) : AppError;
+    public record UnhandledError(string Message) : AppError;
+    public record SocketNotConnectedError(string Message = "Socket is not connected.") : AppError;
+    
     public partial class Packet
     {
         private const int SendMtu = 1460;
         private const int PosPacketType = 2;
 
         private int _pos;
-        private readonly byte[] _buf = new byte[SendMtu];
+        private readonly byte[] _buf;
         private PacketType _type;
 
         public Socket Socket { get; }
+
+        private Packet(byte[] buf)
+        {
+            _buf = buf;
+            _pos = PosPacketType + 1;
+        }
         
         public Packet(Socket socket, PacketType type)
         {
@@ -22,19 +35,16 @@ namespace BetterTTD.Network
             _pos = PosPacketType + 1;
         }
 
-        public Packet(Socket socket)
+        public static Result<Packet, AppError> Create(Socket socket)
         {
-            Socket = socket;
-
-            if (socket.Connected == false)
-                return;
-
-            var length = Socket.Receive(_buf);
-
-            if (length == 0)
-                throw new SocketException();
-
-            _pos = PosPacketType + 1;
+            var buf = new byte[SendMtu];
+            return socket switch
+            {
+                _ when socket is null => Result.Failure<Packet, AppError>(new NullError(nameof(socket))),
+                _ when !socket.Connected => Result.Failure<Packet, AppError>(new SocketNotConnectedError()),
+                _ when socket.Receive(buf) != 0 => new Packet(buf),
+                _ => Result.Failure<Packet, AppError>(new UnhandledError("Socket unhandled error."))
+            };
         }
 
         public int Length()
@@ -62,10 +72,17 @@ namespace BetterTTD.Network
             Socket.Send(_buf, _pos, SocketFlags.None);
         }
         
+        public void SendTo(Socket socket)
+        {
+            _buf[0] = (byte)_pos;
+            _buf[1] = (byte)(_pos >> 8);
+
+            socket.Send(_buf, _pos, SocketFlags.None);
+        }
+        
         private void SetType(PacketType type)
         {
             _buf[PosPacketType] = (byte)type;
         }
     }
-
 }

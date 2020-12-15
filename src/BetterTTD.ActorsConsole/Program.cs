@@ -1,14 +1,18 @@
 ﻿using System;
 using Akka.Actor;
+using BetterTTD.Actors;
 
 namespace BetterTTD.ActorsConsole
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            var system = ActorSystem.Create("actor-system");
-
+            var system = ActorSystem.Create("ottd-system");
+            var clientRef = system.ActorOf(Props.Create<NetworkClientActor>(), nameof(NetworkClientActor));
+            
+            clientRef.Tell(new AdminConnectMessage("127.0.0.1", 3977, "p7gvv"));
+            
             Console.Read();
         }
     }

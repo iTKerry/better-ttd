@@ -17,4 +17,8 @@
       </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="CSharpFunctionalExtensions" Version="2.13.2" />
+    </ItemGroup>
+
 </Project>

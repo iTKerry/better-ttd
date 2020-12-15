@@ -136,6 +136,7 @@ namespace BetterOTTD.COAN.Network
         }
 
         #region Polls
+        
         public void pollCmdNames()
         {
             sendAdminPoll(AdminUpdateType.ADMIN_UPDATE_CMD_NAMES);
@@ -173,6 +174,7 @@ namespace BetterOTTD.COAN.Network
         {
             sendAdminPoll(AdminUpdateType.ADMIN_UPDATE_DATE);
         }
+        
         #endregion
 
         #region Send Packets
@@ -238,6 +240,7 @@ namespace BetterOTTD.COAN.Network
         #endregion
 
         #region Receive Packets
+        
         public void receiveServerClientInfo(Packet p)
         {
             var client = new Client(p.ReadUint32())
