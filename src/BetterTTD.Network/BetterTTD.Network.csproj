@@ -8,4 +8,13 @@
       <ProjectReference Include="..\BetterTTD.Domain\BetterTTD.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Packet.Write.cs">
+        <DependentUpon>Packet.cs</DependentUpon>
+      </Compile>
+      <Compile Update="Packet.Read.cs">
+        <DependentUpon>Packet.cs</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

@@ -46,7 +46,7 @@ namespace BetterOTTD.COAN.Network
             {
                 Thread.CurrentThread.IsBackground = true;
 
-                while (IsConnected())
+                while (_socket.Connected)
                     receive();
 
                 Thread.CurrentThread.Abort();
@@ -93,11 +93,6 @@ namespace BetterOTTD.COAN.Network
         public void chatPublic(string msg)
         {
             sendAdminChat(NetworkAction.NETWORK_ACTION_CHAT, DestType.DESTTYPE_BROADCAST, 0, msg, 0);
-        }
-
-        public Boolean IsConnected()
-        {
-            return _socket.Connected;
         }
 
         public void Start()
@@ -193,7 +188,7 @@ namespace BetterOTTD.COAN.Network
             NetworkOutputThread.Append(p);
         }
 
-        public void sendAdminChat(NetworkAction action, DestType type, long dest, String msg, long data)
+        public void sendAdminChat(NetworkAction action, DestType type, long dest, string msg, long data)
         {
             var p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_CHAT);
             p.WriteUint8((short)action);
@@ -211,7 +206,6 @@ namespace BetterOTTD.COAN.Network
         public void sendAdminGameScript(string command)
         {
             var p = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_GAMESCRIPT);
-
 
             p.WriteString(command); // JSON encode
             NetworkOutputThread.Append(p);
