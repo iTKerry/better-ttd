@@ -98,6 +98,7 @@ namespace BetterTTD.Actors
     {
         private readonly Socket _socket;
         private readonly ILoggingAdapter _log;
+        private IActorRef _dispatcher;
         
         public ITimerScheduler Timers { get; set; }
 
@@ -120,7 +121,7 @@ namespace BetterTTD.Actors
         {
             _log.Info($"PreStart for {nameof(NetworkReceiverActor)}");
 
-            Context.ActorOf(DispatcherActor.Props(), nameof(DispatcherActor));
+            _dispatcher = Context.ActorOf(DispatcherActor.Props(), nameof(DispatcherActor));
             
             Timers.StartPeriodicTimer(
                 nameof(NetworkReceiverActor), 
@@ -133,7 +134,7 @@ namespace BetterTTD.Actors
             var (isSuccess, _, packet, error) = Packet.Create(_socket);
             if (isSuccess)
             {
-                Context.Parent.Tell(new ReceivedBufMessage(packet));
+                _dispatcher.Tell(new ReceivedBufMessage(packet));
                 _log.Info($"Received Packet Type: {packet.GetPacketType()}");
             }
             else
@@ -146,12 +147,16 @@ namespace BetterTTD.Actors
     public class DispatcherActor : ReceiveActor
     {
         private readonly ILoggingAdapter _log;
+        private ActorSelection _sender;
         
         public DispatcherActor()
         {
             _log = Context.GetLogger();
+            _sender = Context.ActorSelection("/user/NetworkClientActor/NetworkSenderActor");
 
             Receive<ReceivedBufMessage>(ReceivedBufMessageHandler);
+            
+            _log.Info($"Initialized {nameof(DispatcherActor)}");
         }
 
         public static Props Props()
@@ -163,6 +168,12 @@ namespace BetterTTD.Actors
         {
             var dispatchName = msg.Packet.GetPacketType().GetDispatchName();
             _log.Info(dispatchName);
+            switch (dispatchName)
+            {
+                default:
+                    _log.Warning($"Unhandled action: {dispatchName}");
+                    break;
+            }
         }
     } 
 
