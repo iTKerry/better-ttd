@@ -31,7 +31,6 @@ namespace BetterTTD.Actors
             _log = Context.GetLogger();
             
             Receive<AdminConnectMessage>(ConnectMessageHandler);
-            Receive<ReceivedBufMessage>(ReceivedBufMessageHandler);
             
             _log.Info($"Initialized {nameof(NetworkClientActor)}");
         }
@@ -53,12 +52,6 @@ namespace BetterTTD.Actors
             _sender = Context.ActorOf(NetworkSenderActor.Props(_socket), nameof(NetworkSenderActor));
             
             _sender.Tell(new SendAdminJoinMessage(password, "BetterTTD", "1.0"));
-        }
-        
-        private void ReceivedBufMessageHandler(ReceivedBufMessage msg)
-        {
-            var dispatchName = msg.Packet.GetPacketType().GetDispatchName();
-            _log.Info(dispatchName);
         }
     }
 
@@ -126,6 +119,8 @@ namespace BetterTTD.Actors
         protected override void PreStart()
         {
             _log.Info($"PreStart for {nameof(NetworkReceiverActor)}");
+
+            Context.ActorOf(DispatcherActor.Props(), nameof(DispatcherActor));
             
             Timers.StartPeriodicTimer(
                 nameof(NetworkReceiverActor), 
@@ -148,14 +143,35 @@ namespace BetterTTD.Actors
         }
     }
 
+    public class DispatcherActor : ReceiveActor
+    {
+        private readonly ILoggingAdapter _log;
+        
+        public DispatcherActor()
+        {
+            _log = Context.GetLogger();
+
+            Receive<ReceivedBufMessage>(ReceivedBufMessageHandler);
+        }
+
+        public static Props Props()
+        {
+            return Akka.Actor.Props.Create(() => new DispatcherActor());
+        }
+        
+        private void ReceivedBufMessageHandler(ReceivedBufMessage msg)
+        {
+            var dispatchName = msg.Packet.GetPacketType().GetDispatchName();
+            _log.Info(dispatchName);
+        }
+    } 
+
     public record ReceivedBufMessage(Packet Packet);
     public record ReceiveBufMessage;
-    
     public record SendAdminJoinMessage(
         string AdminPassword, 
         string BotName, 
         string BotVersion);
-    
     public record AdminConnectMessage(
         string Host, 
         int Port, 
