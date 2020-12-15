@@ -12,7 +12,7 @@ namespace BetterTTD.Coan_OLD.Networks
 
         public Protocol()
         {
-            _supportedFrequencies = new Dictionary<AdminUpdateType, ArrayList>();
+            _supportedFrequencies = new();
         }
 
         public void AddSupport(int typeIndex, int freqIndex)
@@ -22,7 +22,7 @@ namespace BetterTTD.Coan_OLD.Networks
 
             if (_supportedFrequencies.Keys.Contains(type) == false)
             {
-                _supportedFrequencies.Add(type, new ArrayList());
+                _supportedFrequencies.Add(type, new());
             }
             
             _supportedFrequencies[type].Add(freq);

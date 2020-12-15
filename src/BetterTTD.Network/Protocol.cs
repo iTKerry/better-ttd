@@ -7,30 +7,31 @@ namespace BetterTTD.Network
 {
     public class Protocol
     {
+        private readonly Dictionary<AdminUpdateType, ArrayList> _supportedFrequencies;
+
         public int Version { get; set; } = -1;
-        protected Dictionary<AdminUpdateType, ArrayList> supportedFrequencies;
 
         public Protocol()
         {
-            supportedFrequencies = new Dictionary<AdminUpdateType, ArrayList>();
+            _supportedFrequencies = new();
         }
 
-        public void addSupport(int typeIndex, int freqIndex)
+        public void AddSupport(int typeIndex, int freqIndex)
         {
-            AdminUpdateFrequency freq = (AdminUpdateFrequency)freqIndex;
-            AdminUpdateType type = (AdminUpdateType)typeIndex;
+            var freq = (AdminUpdateFrequency) freqIndex;
+            var type = (AdminUpdateType) typeIndex;
 
-            if (supportedFrequencies.Keys.Contains(type) == false)
+            if (_supportedFrequencies.Keys.Contains(type) == false)
             {
-                supportedFrequencies.Add(type, new ArrayList());
+                _supportedFrequencies.Add(type, new());
             }
-            supportedFrequencies[type].Add(freq);
 
+            _supportedFrequencies[type].Add(freq);
         }
 
-        public bool isSupported(AdminUpdateType type, AdminUpdateFrequency freq)
+        public bool IsSupported(AdminUpdateType type, AdminUpdateFrequency freq)
         {
-            return supportedFrequencies[type].Contains(freq);
+            return _supportedFrequencies[type].Contains(freq);
         }
     }
 }
