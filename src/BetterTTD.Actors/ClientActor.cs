@@ -19,6 +19,11 @@ namespace BetterTTD.Actors
             _log.Info("Initialized");
         }
 
+        public static Props Props()
+        {
+            return Akka.Actor.Props.Create(() => new ClientActor());
+        }
+        
         private void ConnectMessageHandler(AdminConnectMessage msg)
         {
             var (host, port, password) = msg;

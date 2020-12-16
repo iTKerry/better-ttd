@@ -8,12 +8,29 @@ namespace BetterTTD.ActorsConsole
     {
         private static void Main()
         {
-            var system = ActorSystem.Create("ottd-system");
-            var clientRef = system.ActorOf(Props.Create<ClientActor>(), nameof(ClientActor));
-            
-            clientRef.Tell(new AdminConnectMessage("127.0.0.1", 3977, "p7gvv"));
+            var system = new ClientSystem("ottd-system");
+            var view = new ConsoleView(system);
+            view.Connect("127.0.0.1", 3977, "p7gvv");
             
             Console.Read();
+        }
+    }
+
+    public sealed class ClientSystem
+    {
+        private readonly ActorSystem _actorSystem;
+        private readonly IActorRef _clientActor;
+
+        public ClientSystem(string systemName)
+        {
+            _actorSystem = ActorSystem.Create(systemName);
+            _clientActor = _actorSystem.ActorOf(ClientActor.Props(), nameof(ClientActor));
+        }
+
+        public IClientBridge CreateClientBridge(IClientView clientView)
+        {
+            var bridgeActor = _actorSystem.ActorOf(BridgeActor.Props(clientView, _clientActor), nameof(BridgeActor));
+            return new ClientBridge(bridgeActor);
         }
     }
 }

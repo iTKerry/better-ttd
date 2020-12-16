@@ -10,10 +10,12 @@ namespace BetterTTD.Actors
     public class DispatcherActor : ReceiveActor
     {
         private readonly ILoggingAdapter _log;
-        
+        private readonly ActorSelection _bridge;
+
         public DispatcherActor()
         {
             _log = Context.GetLogger();
+            _bridge = Context.ActorSelection("akka://ottd-system/user/BridgeActor");
 
             Receive<ReceivedBufMessage>(ReceivedBufMessageHandler);
             
@@ -69,7 +71,7 @@ namespace BetterTTD.Actors
                 }
             }
 
-            //OnProtocol?.Invoke(_protocol);
+            _bridge.Tell(new OnProtocolMessage(protocol));
         }
         
         private void ReceiveServerWelcome(Packet packet)
@@ -91,7 +93,7 @@ namespace BetterTTD.Actors
 
             game.Map = map;
 
-            //OnServerWelcome?.Invoke();
+            _bridge.Tell(new OnServerWelcomeMessage());
         }
     }
 }
