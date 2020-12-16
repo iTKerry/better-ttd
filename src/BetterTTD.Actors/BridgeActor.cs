@@ -28,7 +28,8 @@ namespace BetterTTD.Actors
         private void Active()
         {
             Receive<OnProtocolMessage>(msg => _clientView.OnProtocol(msg.Protocol));
-            Receive<OnServerWelcomeMessage>(msg => _clientView.OnServerWelcome());
+            Receive<OnServerWelcomeMessage>(msg => _clientView.OnServerWelcome(msg.Game));
+            Receive<OnServerCmdNamesMessage>(msg => _clientView.OnServerCmdNames(msg.CmdNames));
             
             Receive<AdminConnectMessage>(_clientActor.Tell);
             Receive<SetDefaultUpdateFrequencyMessage>(_clientActor.Tell);

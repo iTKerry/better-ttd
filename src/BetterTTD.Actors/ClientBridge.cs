@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
+using BetterTTD.Domain.Entities;
 using BetterTTD.Network;
 
 namespace BetterTTD.Actors
@@ -35,7 +37,8 @@ namespace BetterTTD.Actors
         void Connect(string host, int port, string adminPassword);
         
         void OnProtocol(Protocol protocol);
-        void OnServerWelcome();
+        void OnServerWelcome(Game game);
+        void OnServerCmdNames(Dictionary<int,string> cmdNames);
     }
 
     public interface IClientBridge

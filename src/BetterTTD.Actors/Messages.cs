@@ -1,4 +1,6 @@
-﻿using BetterTTD.Domain.Enums;
+﻿using System.Collections.Generic;
+using BetterTTD.Domain.Entities;
+using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
 
 namespace BetterTTD.Actors
@@ -25,7 +27,7 @@ namespace BetterTTD.Actors
     public record PollAllMessage(Protocol Protocol);
 
 
+    public record OnServerCmdNamesMessage(Dictionary<int, string> CmdNames);
+    public record OnServerWelcomeMessage(Game Game);
     public record OnProtocolMessage(Protocol Protocol);
-
-    public record OnServerWelcomeMessage;
 }

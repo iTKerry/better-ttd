@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Akka.Actor;
 using Akka.Event;
 using BetterTTD.Domain.Entities;
@@ -44,6 +45,9 @@ namespace BetterTTD.Actors
                     break;
                 case "receiveServerWelcome":
                     ReceiveServerWelcome(msg.Packet);
+                    break;
+                case "receiveServerCmdNames":
+                    ReceiveServerCmdNames(msg.Packet);
                     break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
@@ -93,7 +97,21 @@ namespace BetterTTD.Actors
 
             game.Map = map;
 
-            _bridge.Tell(new OnServerWelcomeMessage());
+            _bridge.Tell(new OnServerWelcomeMessage(game));
+        }
+
+        private void ReceiveServerCmdNames(Packet packet)
+        {
+            var commands = new Dictionary<int, string>();
+            while (packet.ReadBool())
+            {
+                var cmdId = packet.ReadUint16();
+                var cmdName = packet.ReadString();
+                
+                commands.Add(cmdId, cmdName);
+            }
+
+            _bridge.Tell(new OnServerCmdNamesMessage(commands));
         }
     }
 }
