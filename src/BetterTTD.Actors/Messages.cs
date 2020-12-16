@@ -44,4 +44,8 @@ namespace BetterTTD.Actors
         int CompanyId);
     public record OnServerClientQuitMessage(long ClientId);
     public record OnServerClientErrorMessage(long ClientId, NetworkErrorCode ErrorCode);
+    public record OnServerCompanyStatsMessage(
+        int CompanyId,
+        Dictionary<VehicleType, int> Vehicles,
+        Dictionary<VehicleType, int> Stations);
 }

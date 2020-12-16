@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Akka.Actor;
 using Akka.Event;
 using BetterTTD.Domain.Entities;
@@ -66,6 +67,9 @@ namespace BetterTTD.Actors
                     break;
                 case "receiveServerClientError":
                     ReceiveServerClientError(msg.Packet);
+                    break;
+                case "receiveServerCompanyStats":
+                    ReceiveServerCompanyStats(msg.Packet);
                     break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
@@ -187,6 +191,21 @@ namespace BetterTTD.Actors
             var error = (NetworkErrorCode) packet.ReadUint8();
             
             _bridge.Tell(new OnServerClientErrorMessage(clientId, error));
+        }
+        
+        private void ReceiveServerCompanyStats(Packet packet)
+        {
+            var companyId = packet.ReadUint8();
+            
+            var vehicles = 
+                Enum.GetValues<VehicleType>()
+                .ToDictionary(vehicleType => vehicleType, vehicleType => packet.ReadUint16());
+            
+            var stations = 
+                Enum.GetValues<VehicleType>()
+                .ToDictionary(vehicleType => vehicleType, vehicleType => packet.ReadUint16());
+            
+            _bridge.Tell(new OnServerCompanyStatsMessage(companyId, vehicles, stations));
         }
     }
 }

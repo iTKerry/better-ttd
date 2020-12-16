@@ -80,5 +80,16 @@ namespace BetterTTD.ActorsConsole
         {
             Console.WriteLine($"{nameof(OnServerClientError)} | clientId: {clientId}; errorCode: {errorCode}");
         }
+
+        public void OnServerCompanyStats(int companyId, Dictionary<VehicleType, int> vehicles, Dictionary<VehicleType, int> stations)
+        {
+            var vehiclesCount = vehicles.Values.Sum();
+            var stationsCount = stations.Values.Sum();
+            
+            Console.WriteLine($"{nameof(OnServerCompanyStats)} | " +
+                              $"companyId: {companyId}; " +
+                              $"vehiclesCount: {vehiclesCount}; " +
+                              $"stationsCount: {stationsCount}");
+        }
     }
 }
