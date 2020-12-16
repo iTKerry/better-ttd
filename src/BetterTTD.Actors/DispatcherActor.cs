@@ -71,6 +71,9 @@ namespace BetterTTD.Actors
                 case "receiveServerCompanyStats":
                     ReceiveServerCompanyStats(msg.Packet);
                     break;
+                case "receiveServerCompanyRemove":
+                    ReceiveServerCompanyRemove(msg.Packet); 
+                    break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
                     break;
@@ -206,6 +209,14 @@ namespace BetterTTD.Actors
                 .ToDictionary(vehicleType => vehicleType, vehicleType => packet.ReadUint16());
             
             _bridge.Tell(new OnServerCompanyStatsMessage(companyId, vehicles, stations));
+        }
+        
+        private void ReceiveServerCompanyRemove(Packet packet)
+        {
+            var companyId = packet.ReadUint8();
+            var removeReason = (AdminCompanyRemoveReason) packet.ReadUint8();
+
+            _bridge.Tell(new OnServerCompanyRemoveMessage(companyId, removeReason));
         }
     }
 }

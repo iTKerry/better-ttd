@@ -48,4 +48,5 @@ namespace BetterTTD.Actors
         int CompanyId,
         Dictionary<VehicleType, int> Vehicles,
         Dictionary<VehicleType, int> Stations);
+    public record OnServerCompanyRemoveMessage(int CompanyId, AdminCompanyRemoveReason RemoveReason);
 }

@@ -38,6 +38,7 @@ namespace BetterTTD.Actors
             Receive<OnServerClientQuitMessage>(msg => _clientView.OnServerClientQuit(msg.ClientId));
             Receive<OnServerClientErrorMessage>(msg => _clientView.OnServerClientError(msg.ClientId, msg.ErrorCode));
             Receive<OnServerCompanyStatsMessage>(msg => _clientView.OnServerCompanyStats(msg.CompanyId, msg.Vehicles, msg.Stations));
+            Receive<OnServerCompanyRemoveMessage>(msg => _clientView.OnServerCompanyRemove(msg.CompanyId, msg.RemoveReason));
             
             Receive<AdminConnectMessage>(_clientActor.Tell);
             Receive<SetDefaultUpdateFrequencyMessage>(_clientActor.Tell);

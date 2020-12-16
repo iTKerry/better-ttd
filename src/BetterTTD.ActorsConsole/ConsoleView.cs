@@ -91,5 +91,10 @@ namespace BetterTTD.ActorsConsole
                               $"vehiclesCount: {vehiclesCount}; " +
                               $"stationsCount: {stationsCount}");
         }
+
+        public void OnServerCompanyRemove(int companyId, AdminCompanyRemoveReason removeReason)
+        {
+            Console.WriteLine($"{nameof(OnServerClientError)} | companyId: {companyId}; removeReason: {removeReason}");
+        }
     }
 }

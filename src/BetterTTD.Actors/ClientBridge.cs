@@ -47,6 +47,7 @@ namespace BetterTTD.Actors
         void OnServerClientQuit(long clientId);
         void OnServerClientError(long clientId, NetworkErrorCode errorCode);
         void OnServerCompanyStats(int companyId, Dictionary<VehicleType,int> vehicles, Dictionary<VehicleType,int> stations);
+        void OnServerCompanyRemove(int companyId, AdminCompanyRemoveReason removeReason);
     }
 
     public interface IClientBridge
