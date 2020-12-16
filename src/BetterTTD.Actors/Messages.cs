@@ -30,4 +30,6 @@ namespace BetterTTD.Actors
     public record OnServerCmdNamesMessage(Dictionary<int, string> CmdNames);
     public record OnServerWelcomeMessage(Game Game);
     public record OnProtocolMessage(Protocol Protocol);
+    public record OnServerConsoleMessage(string Origin, string Message);
+    public record OnServerClientInfoMessage(Client Client);
 }

@@ -37,6 +37,7 @@ namespace BetterTTD.ActorsConsole
         {
             _bridge.SetDefaultUpdateFrequency(_protocol);
             _bridge.PollAll(_protocol);
+            
             var json = JsonConvert.SerializeObject(game, Formatting.Indented);
             Console.WriteLine($"{nameof(OnServerWelcome)}: {json}");
         }
@@ -46,6 +47,17 @@ namespace BetterTTD.ActorsConsole
             cmdNames
                 .Where(cmd => !_commands.Keys.Contains(cmd.Key))
                 .ForEach(kv => _commands.Add(kv.Key, kv.Value));
+        }
+
+        public void OnServerConsole(string origin, string message)
+        {
+            Console.WriteLine($"{nameof(OnServerConsole)}: origin - {origin}; message - {message}");
+        }
+
+        public void OnServerClientInfo(Client client)
+        {
+            var json = JsonConvert.SerializeObject(client, Formatting.Indented);
+            Console.WriteLine($"{nameof(OnServerClientInfo)}: {json}");
         }
     }
 }

@@ -39,6 +39,8 @@ namespace BetterTTD.Actors
         void OnProtocol(Protocol protocol);
         void OnServerWelcome(Game game);
         void OnServerCmdNames(Dictionary<int,string> cmdNames);
+        void OnServerConsole(string origin, string message);
+        void OnServerClientInfo(Client client);
     }
 
     public interface IClientBridge

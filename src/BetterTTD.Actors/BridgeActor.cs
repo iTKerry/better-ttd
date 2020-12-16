@@ -1,5 +1,6 @@
 ﻿using Akka.Actor;
 using Akka.Event;
+using Microsoft.VisualBasic;
 
 namespace BetterTTD.Actors
 {
@@ -30,6 +31,8 @@ namespace BetterTTD.Actors
             Receive<OnProtocolMessage>(msg => _clientView.OnProtocol(msg.Protocol));
             Receive<OnServerWelcomeMessage>(msg => _clientView.OnServerWelcome(msg.Game));
             Receive<OnServerCmdNamesMessage>(msg => _clientView.OnServerCmdNames(msg.CmdNames));
+            Receive<OnServerConsoleMessage>(msg => _clientView.OnServerConsole(msg.Origin, msg.Message));
+            Receive<OnServerClientInfoMessage>(msg => _clientView.OnServerClientInfo(msg.Client));
             
             Receive<AdminConnectMessage>(_clientActor.Tell);
             Receive<SetDefaultUpdateFrequencyMessage>(_clientActor.Tell);

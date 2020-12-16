@@ -49,6 +49,12 @@ namespace BetterTTD.Actors
                 case "receiveServerCmdNames":
                     ReceiveServerCmdNames(msg.Packet);
                     break;
+                case "receiveServerConsole":
+                    ReceiveServerConsole(msg.Packet);
+                    break;
+                case "receiveServerClientInfo":
+                    ReceiveServerClientInfo(msg.Packet);
+                    break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
                     break;
@@ -112,6 +118,28 @@ namespace BetterTTD.Actors
             }
 
             _bridge.Tell(new OnServerCmdNamesMessage(commands));
+        }
+
+        private void ReceiveServerConsole(Packet packet)
+        {
+            var origin = packet.ReadString();
+            var message = packet.ReadString();
+
+            _bridge.Tell(new OnServerConsoleMessage(origin, message));
+        }
+
+        private void ReceiveServerClientInfo(Packet packet)
+        {
+            var client = new Client(packet.ReadUint32())
+            {
+                NetworkAddress = packet.ReadString(),
+                Name = packet.ReadString(),
+                Language = (NetworkLanguage) packet.ReadUint8(),
+                JoinDate = new(packet.ReadUint32()),
+                CompanyId = packet.ReadUint8()
+            };
+            
+            _bridge.Tell(new OnServerClientInfoMessage(client));
         }
     }
 }
