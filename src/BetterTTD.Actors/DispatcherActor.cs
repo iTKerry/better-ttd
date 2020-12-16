@@ -55,12 +55,24 @@ namespace BetterTTD.Actors
                 case "receiveServerClientInfo":
                     ReceiveServerClientInfo(msg.Packet);
                     break;
+                case "receiveServerChat":
+                    ReceiveServerChat(msg.Packet);
+                    break;
+                case "receiveServerClientUpdate":
+                    ReceiveServerClientUpdate(msg.Packet);
+                    break;
+                case "receiveServerClientQuit":
+                    ReceiveServerClientQuit(msg.Packet);
+                    break;
+                case "receiveServerClientError":
+                    ReceiveServerClientError(msg.Packet);
+                    break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
                     break;
             }
         }
-        
+
         private void ReceiveServerProtocol(Packet packet)
         {
             var protocol = new Protocol {Version = packet.ReadUint8()};
@@ -140,6 +152,41 @@ namespace BetterTTD.Actors
             };
             
             _bridge.Tell(new OnServerClientInfoMessage(client));
+        }
+
+        private void ReceiveServerChat(Packet packet)
+        {
+            var action = (NetworkAction) packet.ReadUint8();
+            var dest = (DestType) packet.ReadUint8();
+            var clientId = packet.ReadUint32();
+            var message = packet.ReadString();
+            var data = packet.ReadUint64();
+            
+            _bridge.Tell(new OnServerChatMessage(action, dest, clientId, message, data));
+        }
+
+        private void ReceiveServerClientUpdate(Packet packet)
+        {
+            var clientId = packet.ReadUint32();
+            var name = packet.ReadString();
+            var companyId = packet.ReadUint8();
+            
+            _bridge.Tell(new OnServerClientUpdateMessage(clientId, name, companyId));
+        }
+        
+        private void ReceiveServerClientQuit(Packet packet)
+        {
+            var clientId = packet.ReadUint32();
+            
+            _bridge.Tell(new OnServerClientQuitMessage(clientId));
+        }
+        
+        private void ReceiveServerClientError(Packet packet)
+        {
+            var clientId = packet.ReadUint32();
+            var error = (NetworkErrorCode) packet.ReadUint8();
+            
+            _bridge.Tell(new OnServerClientErrorMessage(clientId, error));
         }
     }
 }

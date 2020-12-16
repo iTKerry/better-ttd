@@ -33,6 +33,10 @@ namespace BetterTTD.Actors
             Receive<OnServerCmdNamesMessage>(msg => _clientView.OnServerCmdNames(msg.CmdNames));
             Receive<OnServerConsoleMessage>(msg => _clientView.OnServerConsole(msg.Origin, msg.Message));
             Receive<OnServerClientInfoMessage>(msg => _clientView.OnServerClientInfo(msg.Client));
+            Receive<OnServerChatMessage>(msg => _clientView.OnServerChat(msg.Action, msg.Dest, msg.ClientId, msg.Message, msg.Data));
+            Receive<OnServerClientUpdateMessage>(msg => _clientView.OnServerClientUpdate(msg.ClientId, msg.CompanyId, msg.Name));
+            Receive<OnServerClientQuitMessage>(msg => _clientView.OnServerClientQuit(msg.ClientId));
+            Receive<OnServerClientErrorMessage>(msg => _clientView.OnServerClientError(msg.ClientId, msg.ErrorCode));
             
             Receive<AdminConnectMessage>(_clientActor.Tell);
             Receive<SetDefaultUpdateFrequencyMessage>(_clientActor.Tell);

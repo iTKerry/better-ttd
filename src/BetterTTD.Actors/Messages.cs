@@ -32,4 +32,16 @@ namespace BetterTTD.Actors
     public record OnProtocolMessage(Protocol Protocol);
     public record OnServerConsoleMessage(string Origin, string Message);
     public record OnServerClientInfoMessage(Client Client);
+    public record OnServerChatMessage(
+        NetworkAction Action, 
+        DestType Dest, 
+        long ClientId, 
+        string Message,
+        long Data);
+    public record OnServerClientUpdateMessage(
+        long ClientId,
+        string Name,
+        int CompanyId);
+    public record OnServerClientQuitMessage(long ClientId);
+    public record OnServerClientErrorMessage(long ClientId, NetworkErrorCode ErrorCode);
 }

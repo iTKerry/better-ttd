@@ -4,6 +4,7 @@ using System.Linq;
 using Akka.Util.Internal;
 using BetterTTD.Actors;
 using BetterTTD.Domain.Entities;
+using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
 using Newtonsoft.Json;
 
@@ -58,6 +59,26 @@ namespace BetterTTD.ActorsConsole
         {
             var json = JsonConvert.SerializeObject(client, Formatting.Indented);
             Console.WriteLine($"{nameof(OnServerClientInfo)}: {json}");
+        }
+
+        public void OnServerChat(NetworkAction action, DestType dest, long clientId, string message, long data)
+        {
+            Console.WriteLine($"{nameof(OnServerChat)} | action:{action}; dest: {dest}; clientId: {clientId}; message: {message}; data: {data}");
+        }
+
+        public void OnServerClientUpdate(long clientId, int companyId, string name)
+        {
+            Console.WriteLine($"{nameof(OnServerClientUpdate)} | clientId: {clientId}; companyId: {companyId}; name: {name}");
+        }
+
+        public void OnServerClientQuit(long clientId)
+        {
+            Console.WriteLine($"{nameof(OnServerClientQuit)} | clientId: {clientId}");
+        }
+
+        public void OnServerClientError(long clientId, NetworkErrorCode errorCode)
+        {
+            Console.WriteLine($"{nameof(OnServerClientError)} | clientId: {clientId}; errorCode: {errorCode}");
         }
     }
 }
