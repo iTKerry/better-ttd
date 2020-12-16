@@ -18,8 +18,18 @@ namespace BetterTTD.Actors
         {
             _bridgeActor.Tell(new AdminConnectMessage(host, port, adminPassword));
         }
+
+        public void SetDefaultUpdateFrequency(Protocol protocol)
+        {
+            _bridgeActor.Tell(new SetDefaultUpdateFrequencyMessage(protocol));
+        }
+
+        public void PollAll(Protocol protocol)
+        {
+            _bridgeActor.Tell(new PollAllMessage(protocol));
+        }
     }
-    
+
     public interface IClientView
     {
         void Connect(string host, int port, string adminPassword);
@@ -31,5 +41,7 @@ namespace BetterTTD.Actors
     public interface IClientBridge
     {
         void Connect(string host, int port, string adminPassword);
+        void SetDefaultUpdateFrequency(Protocol protocol);
+        void PollAll(Protocol protocol);
     }
 }

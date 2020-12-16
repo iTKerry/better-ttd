@@ -31,6 +31,8 @@ namespace BetterTTD.Actors
             Receive<OnServerWelcomeMessage>(msg => _clientView.OnServerWelcome());
             
             Receive<AdminConnectMessage>(_clientActor.Tell);
+            Receive<SetDefaultUpdateFrequencyMessage>(_clientActor.Tell);
+            Receive<PollAllMessage>(_clientActor.Tell);
         }
     }
 }

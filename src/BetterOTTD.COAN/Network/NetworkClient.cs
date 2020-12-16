@@ -157,7 +157,7 @@ namespace BetterOTTD.COAN.Network
         /// <param name="companyId">Optional parameter specifying the Company ID to get info on</param>
         public void pollCompanyInfos(long companyId = long.MaxValue)
         {
-            sendAdminPoll(AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO, companyId);
+            sendAdminPoll(AdminUpdateType.ADMIN_UPDATE_COMPANY_INFO, companyId);
         }
 
         public void pollCompanyStats()

@@ -17,6 +17,8 @@ namespace BetterTTD.Actors
             _log = Context.GetLogger();
 
             Receive<SendAdminJoinMessage>(SendAdminJoinMessageHandler);
+            Receive<SendAdminUpdateFrequencyMessage>(SendAdminUpdateFrequencyHandler);
+            Receive<SendAdminPollMessage>(SendAdminPollMessageHandler);
             
             _log.Info("Initialized");
         }
@@ -41,6 +43,38 @@ namespace BetterTTD.Actors
             packet.WriteString(botName);
             packet.WriteString(botVersion);
 
+            packet.SendTo(_socket);
+        }
+
+        private void SendAdminUpdateFrequencyHandler(SendAdminUpdateFrequencyMessage msg)
+        {
+            var (type, freq) = msg;
+
+            _log.Info($"Handled {nameof(SendAdminUpdateFrequencyHandler)}. " +
+                      $"Type:{type}; " +
+                      $"Freq:{freq}.");
+
+            var packet = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_UPDATE_FREQUENCY);
+
+            packet.WriteUint16((int) type);
+            packet.WriteUint16((int) freq);
+
+            packet.SendTo(_socket);
+        }
+        
+        private void SendAdminPollMessageHandler(SendAdminPollMessage msg)
+        {
+            var (type, data) = msg;
+            
+            _log.Info($"Handled {nameof(SendAdminPollMessageHandler)}. " +
+                      $"Type:{type}; " +
+                      $"Data:{data}.");
+
+            var packet = new Packet(_socket, PacketType.ADMIN_PACKET_ADMIN_POLL);
+            
+            packet.WriteUint8((short)type);
+            packet.WriteUint32(data);
+            
             packet.SendTo(_socket);
         }
     }
