@@ -74,6 +74,9 @@ namespace BetterTTD.Actors
                 case "receiveServerCompanyRemove":
                     ReceiveServerCompanyRemove(msg.Packet); 
                     break;
+                case "receiveServerCmdLogging":
+                    ReceiveServerCmdLogging(msg.Packet);
+                    break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
                     break;
@@ -217,6 +220,11 @@ namespace BetterTTD.Actors
             var removeReason = (AdminCompanyRemoveReason) packet.ReadUint8();
 
             _bridge.Tell(new OnServerCompanyRemoveMessage(companyId, removeReason));
+        }
+        
+        private void ReceiveServerCmdLogging(Packet packet)
+        {
+            throw new NotImplementedException();
         }
     }
 }

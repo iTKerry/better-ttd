@@ -48,6 +48,8 @@ namespace BetterTTD.ActorsConsole
             cmdNames
                 .Where(cmd => !_commands.Keys.Contains(cmd.Key))
                 .ForEach(kv => _commands.Add(kv.Key, kv.Value));
+            var json = JsonConvert.SerializeObject(cmdNames, Formatting.Indented);
+            Console.WriteLine(json);
         }
 
         public void OnServerConsole(string origin, string message)
