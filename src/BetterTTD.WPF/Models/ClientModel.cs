@@ -1,5 +1,4 @@
-﻿using System;
-using BetterTTD.Domain.Entities;
+﻿using BetterTTD.Domain.Entities;
 using CSharpFunctionalExtensions;
 
 namespace BetterTTD.WPF.Models
@@ -12,12 +11,11 @@ namespace BetterTTD.WPF.Models
             Name = client.Name;
         }
 
-        public static Result<ClientModel> Create(Maybe<Client> maybeClient)
-        {
-            return maybeClient.HasNoValue
-                ? Result.Failure<ClientModel>($"[{nameof(ClientModel)}] Unknown client handled.")
-                : new ClientModel(maybeClient.Value);
-        }
+        public static Result<ClientModel> Create(Maybe<Client> maybeClient) =>
+            maybeClient
+                .Match(
+                    client => new ClientModel(client),
+                    () => Result.Failure<ClientModel>($"[{nameof(ClientModel)}] Unknown client handled."));
 
         public long Id
         {
@@ -34,27 +32,6 @@ namespace BetterTTD.WPF.Models
         public Company Company
         {
             get => Get<Company>();
-            set => Set(value);
-        }
-    }
-
-    public class CompanyModel : BaseModel
-    {
-        public CompanyModel(Maybe<Company> maybeCompany)
-        {
-            if (maybeCompany.HasNoValue)
-            {
-                Console.WriteLine($"[{nameof(CompanyModel)}] Unknown company handled.");
-                return;
-            }
-
-            var company = maybeCompany.Value;
-            Name = company.Name;
-        }
-
-        public string Name
-        {
-            get => Get("Unknown");
             set => Set(value);
         }
     }
