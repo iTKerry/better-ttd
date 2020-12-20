@@ -23,7 +23,7 @@ namespace BetterTTD.WPF.Helpers
             PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
-        protected T Get<T>(T defValue = default(T), [CallerMemberName] string name = null)
+        protected T Get<T>(T defValue = default, [CallerMemberName] string name = null)
         {
             if (string.IsNullOrEmpty(name)) return defValue;
             if (_properties.TryGetValue(name, out var value))

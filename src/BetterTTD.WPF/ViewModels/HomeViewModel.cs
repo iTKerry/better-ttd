@@ -7,6 +7,8 @@ using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
+using BetterTTD.WPF.Models;
+using CSharpFunctionalExtensions;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
@@ -15,18 +17,12 @@ using Newtonsoft.Json;
 
 namespace BetterTTD.WPF.ViewModels
 {
-    public class ChatModel 
-    {
-        public string DestType { get; set; }
-        public long ClientId { get; set; }
-        public string Message { get; set; }
-    }
-    
     public class HomeViewModel : BaseViewModel, IClientView
     {
         private readonly IClientCommander _commander;
         private Protocol _protocol;
         private readonly Dictionary<int, string> _commands;
+        public List<ClientModel> Clients { get; set; } = new List<ClientModel>();
 
         public ObservableCollection<ChatModel> ChatList
         {
@@ -46,7 +42,6 @@ namespace BetterTTD.WPF.ViewModels
         {
             _commands = new Dictionary<int, string>();
             _commander = system.CreateClientCommander(this);
-            ChatList.Add(new ChatModel{ClientId = -1, DestType = "INITIAL MESSAGE", Message = "TEST"});
         }
 
         public void OnProtocol(Protocol protocol)
@@ -80,18 +75,18 @@ namespace BetterTTD.WPF.ViewModels
 
         public void OnServerClientInfo(Client client)
         {
+            ClientModel
+                .Create(client)
+                .Tap(cl => Clients.Add(cl));
+            
             var json = JsonConvert.SerializeObject(client, Formatting.Indented);
             Console.WriteLine($"{nameof(OnServerClientInfo)}: {json}");
         }
 
         public void OnServerChat(NetworkAction action, DestType dest, long clientId, string message, long data)
         {
-            var model = new ChatModel
-            {
-                ClientId = clientId,
-                DestType = dest.ToString(),
-                Message = message
-            };
+            Maybe<ClientModel> maybeClient = Clients.FirstOrDefault(cl => cl.Id == clientId);
+            var model = new ChatModel(dest, maybeClient, message);
             
             DispatcherHelper.CheckBeginInvokeOnUI(() => ChatList.Add(model));
             
@@ -100,11 +95,17 @@ namespace BetterTTD.WPF.ViewModels
 
         public void OnServerClientUpdate(long clientId, int companyId, string name)
         {
+            Maybe<ClientModel> maybeClient = Clients.FirstOrDefault(cl => cl.Id == clientId);
+            maybeClient.Match(cl => { cl.Name = name; }, () => { });
+            
             Console.WriteLine($"{nameof(OnServerClientUpdate)} | clientId: {clientId}; companyId: {companyId}; name: {name}");
         }
 
         public void OnServerClientQuit(long clientId)
         {
+            Maybe<ClientModel> maybeClient = Clients.FirstOrDefault(cl => cl.Id == clientId);
+            maybeClient.Match(cl => Clients.Remove(cl), () => { });
+            
             Console.WriteLine($"{nameof(OnServerClientQuit)} | clientId: {clientId}");
         }
 

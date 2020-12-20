@@ -2,7 +2,5 @@
 
 namespace BetterTTD.WPF.ViewModels
 {
-    public class BaseViewModel : Bindable
-    {
-    }
+    public class BaseViewModel : Bindable { }
 }
