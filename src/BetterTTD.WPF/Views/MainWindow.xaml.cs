@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace BetterTTD.WPF
+namespace BetterTTD.WPF.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

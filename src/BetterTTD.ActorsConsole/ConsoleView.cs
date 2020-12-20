@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Akka.Util.Internal;
-using BetterTTD.Actors;
+using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
@@ -10,24 +10,21 @@ using Newtonsoft.Json;
 
 namespace BetterTTD.ActorsConsole
 {
-    public class ConsoleView : IClientView
+    public class ConsoleView : IClientView, IConnectorView
     {
         private readonly Dictionary<int, string> _commands;
-        private readonly IClientBridge _bridge;
+        private readonly IClientCommander _commander;
+        private readonly IClientConnector _connector;
         
         private Protocol _protocol;
 
         public ConsoleView(ClientSystem system)
         {
-            _commands = new();
-            _bridge = system.CreateClientBridge(this);
+            _commands = new Dictionary<int, string>();
+            _commander = system.CreateClientCommander(this);
+            _connector = system.CreateClientConnector(this);
         }
 
-        public void Connect(string host, int port, string adminPassword)
-        {
-            _bridge.Connect(host, port, adminPassword);
-        }
-        
         public void OnProtocol(Protocol protocol)
         {
             _protocol = protocol;
@@ -36,8 +33,8 @@ namespace BetterTTD.ActorsConsole
 
         public void OnServerWelcome(Game game)
         {
-            _bridge.SetDefaultUpdateFrequency(_protocol);
-            _bridge.PollAll(_protocol);
+            _commander.SetDefaultUpdateFrequency(_protocol);
+            _commander.PollAll(_protocol);
             
             var json = JsonConvert.SerializeObject(game, Formatting.Indented);
             Console.WriteLine($"{nameof(OnServerWelcome)}: {json}");
@@ -97,6 +94,16 @@ namespace BetterTTD.ActorsConsole
         public void OnServerCompanyRemove(int companyId, AdminCompanyRemoveReason removeReason)
         {
             Console.WriteLine($"{nameof(OnServerClientError)} | companyId: {companyId}; removeReason: {removeReason}");
+        }
+
+        public void Connect(string host, int port, string pass)
+        {
+            _connector.Connect(host, port, pass);
+        }
+        
+        public void ConnectResponse(bool connected, string objError)
+        {
+            Console.WriteLine($"IsConnected:{connected}");
         }
     }
 }

@@ -13,26 +13,26 @@ namespace BetterTTD.WPF.ViewModels
         
         public MainWindowViewModel()
         {
-            Messenger.Default.Register<OnShowLoginMessage>(this, OnShowLoginMessageHandler);
-            Messenger.Default.Register<OnShowHomeMessage>(this, OnShowHomeMessageHandler);
+            Messenger.Default.Register<ShowConnectMessage>(this, OnShowLoginMessageHandler);
+            Messenger.Default.Register<ShowHomeMessage>(this, OnShowHomeMessageHandler);
             
-            CurrentViewModel = SimpleIoc.Default.GetInstance<LoginViewModel>();
+            CurrentViewModel = SimpleIoc.Default.GetInstance<ConnectViewModel>();
         }
 
-        private void OnShowHomeMessageHandler(OnShowHomeMessage msg)
+        private void OnShowHomeMessageHandler(ShowHomeMessage msg)
         {
             var vm = SimpleIoc.Default.GetInstance<HomeViewModel>();
             CurrentViewModel = vm;
         }
 
-        private void OnShowLoginMessageHandler(OnShowLoginMessage msg)
+        private void OnShowLoginMessageHandler(ShowConnectMessage msg)
         {
-            var vm = SimpleIoc.Default.GetInstance<HomeViewModel>();
+            var vm = SimpleIoc.Default.GetInstance<ConnectViewModel>();
             CurrentViewModel = vm;
         }
     }
 
-    public record OnShowLoginMessage;
+    public class ShowConnectMessage { }
 
-    public record OnShowHomeMessage;
+    public class ShowHomeMessage { }
 }
