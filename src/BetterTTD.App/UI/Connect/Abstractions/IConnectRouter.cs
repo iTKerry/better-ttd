@@ -2,6 +2,6 @@
 {
     public interface IConnectRouter
     {
-        void NavigateToHome();
+        void NavigateToMain();
     }
 }

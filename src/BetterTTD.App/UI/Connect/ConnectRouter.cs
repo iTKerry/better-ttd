@@ -1,20 +1,23 @@
 ﻿using BetterTTD.App.UI.Connect.Abstractions;
+using BetterTTD.App.UI.Main;
 using ReactiveUI;
 
 namespace BetterTTD.App.UI.Connect
 {
     public class ConnectRouter : IConnectRouter
     {
+        private readonly IScreen _screen;
         private readonly RoutingState _router;
 
-        public ConnectRouter(RoutingState router)
+        public ConnectRouter(IScreen screen)
         {
-            _router = router;
+            _screen = screen;
+            _router = screen.Router;
         }
 
-        public void NavigateToHome()
+        public void NavigateToMain()
         {
-            _router.NavigateAndReset.Execute();
+            _router.NavigateAndReset.Execute(new MainPresenter(_screen));
         }
     }
 }

@@ -9,9 +9,6 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.12" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="UI\Main" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Connect\ConnectPresenter.Props.cs">
       <DependentUpon>ConnectPresenter.cs</DependentUpon>
     </Compile>

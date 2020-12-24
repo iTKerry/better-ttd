@@ -35,7 +35,7 @@ namespace BetterTTD.App.UI.Connect
 
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
             
-            _router = new ConnectRouter(HostScreen.Router);
+            _router = new ConnectRouter(HostScreen);
             _interactor = new ConnectInteractor(this);
             _connect = ReactiveCommand.CreateFromTask(Connect, canConnect);
 
@@ -60,7 +60,7 @@ namespace BetterTTD.App.UI.Connect
         public void Connected()
         {
             _isLoading = false;
-            _router.NavigateToHome();
+            _router.NavigateToMain();
         }
     }
 }
