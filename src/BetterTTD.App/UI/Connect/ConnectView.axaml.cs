@@ -1,11 +1,10 @@
 ﻿using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
-using BetterTTD.App.ViewModels;
 using ReactiveUI;
 
-namespace BetterTTD.App.Views
+namespace BetterTTD.App.UI.Connect
 {
-    public sealed class ConnectView : ReactiveUserControl<ConnectViewModel>
+    public sealed class ConnectView : ReactiveUserControl<ConnectPresenter>
     {
         public ConnectView()
         {

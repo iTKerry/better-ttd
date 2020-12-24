@@ -9,18 +9,27 @@
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.9.12" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models" />
+    <Folder Include="UI\Main" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BetterTTD.ActorsConsole\BetterTTD.ActorsConsole.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="Views\ConnectView.axaml.cs">
-      <DependentUpon>ConnectView.axaml</DependentUpon>
+    <Compile Update="Connect\ConnectPresenter.Props.cs">
+      <DependentUpon>ConnectPresenter.cs</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainWindow.axaml.cs">
+    <Compile Update="Connect\ConnectView.axaml.cs">
+      <DependentUpon>ConnectView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="UI\Root\RootWindow.axaml.cs">
       <DependentUpon>MainWindow.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="UI\Connect\ConnectPresenter.Props.cs">
+      <DependentUpon>ConnectPresenter.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BetterTTD.Actors\BetterTTD.Actors.csproj" />
+    <ProjectReference Include="..\BetterTTD.Domain\BetterTTD.Domain.csproj" />
+    <ProjectReference Include="..\BetterTTD.Network\BetterTTD.Network.csproj" />
   </ItemGroup>
 </Project>

@@ -68,7 +68,7 @@ namespace BetterTTD.WPF.ViewModels
             });
         }
 
-        public async void ConnectResponse(bool connected, string error)
+        public async Task ConnectResponse(bool connected, string? error)
         {
             try
             {

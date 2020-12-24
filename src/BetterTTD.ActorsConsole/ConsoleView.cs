@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Akka.Util.Internal;
 using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Domain.Entities;
@@ -101,7 +102,7 @@ namespace BetterTTD.ActorsConsole
             _connector.Connect(host, port, pass);
         }
         
-        public void ConnectResponse(bool connected, string objError)
+        public async Task ConnectResponse(bool connected, string? objError)
         {
             Console.WriteLine($"IsConnected:{connected}");
         }

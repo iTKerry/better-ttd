@@ -1,13 +1,12 @@
 ﻿using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
-using BetterTTD.App.ViewModels;
 using ReactiveUI;
 
-namespace BetterTTD.App.Views
+namespace BetterTTD.App.UI.Root
 {
-    public sealed class MainWindow : ReactiveWindow<MainWindowViewModel>
+    public sealed class RootWindow : ReactiveWindow<RootPresenter>
     {
-        public MainWindow()
+        public RootWindow()
         {
             this.WhenActivated(disposables =>
             {

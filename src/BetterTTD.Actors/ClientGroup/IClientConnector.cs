@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Threading.Tasks;
 using Akka.Actor;
 
 namespace BetterTTD.Actors.ClientGroup
@@ -25,6 +26,6 @@ namespace BetterTTD.Actors.ClientGroup
 
     public interface IConnectorView
     {
-        void ConnectResponse(bool connected, string? error = null);
+        Task ConnectResponse(bool connected, string? error = null);
     }
 }

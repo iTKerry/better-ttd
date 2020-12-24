@@ -3,10 +3,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:reactiveUi="http://reactiveui.net"
-        d:DataContext="{d:DesignInstance viewModels:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        xmlns:viewModels="clr-namespace:BetterTTD.App.ViewModels"
+        xmlns:root="clr-namespace:BetterTTD.App.UI.Root"
+        d:DataContext="{d:DesignInstance root:RootPresenter, IsDesignTimeCreatable=True}"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="BetterTTD.App.Views.MainWindow"
+        x:Class="BetterTTD.App.UI.Root.RootWindow"
         Title="BetterTTD">
     <reactiveUi:RoutedViewHost Router="{Binding Router}">
         <reactiveUi:RoutedViewHost.DefaultContent>

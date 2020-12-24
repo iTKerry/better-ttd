@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Markup.Xaml;
-using BetterTTD.App.ViewModels;
-using BetterTTD.App.Views;
+using BetterTTD.App.UI.Connect;
+using BetterTTD.App.UI.Root;
 using ReactiveUI;
 using Splat;
 
@@ -13,10 +13,10 @@ namespace BetterTTD.App
 
         public override void OnFrameworkInitializationCompleted()
         {
-            Locator.CurrentMutable.RegisterConstant<IScreen>(new MainWindowViewModel());
-            Locator.CurrentMutable.Register<IViewFor<ConnectViewModel>>(() => new ConnectView());
+            Locator.CurrentMutable.RegisterConstant<IScreen>(new RootPresenter());
+            Locator.CurrentMutable.Register<IViewFor<ConnectPresenter>>(() => new ConnectView());
 
-            new MainWindow { DataContext = Locator.Current.GetService<IScreen>() }.Show();
+            new RootWindow {DataContext = Locator.Current.GetService<IScreen>()}.Show();
             base.OnFrameworkInitializationCompleted();
         }
     }
