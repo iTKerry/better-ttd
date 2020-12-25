@@ -2,6 +2,7 @@
 using System.Linq;
 using Akka.Util.Internal;
 using BetterTTD.Actors.Abstractions;
+using BetterTTD.Actors.ClientGroup.ReceiverGroup.DispatcherGroup;
 using BetterTTD.App.BL;
 using BetterTTD.App.BL.Messages;
 using BetterTTD.App.BL.Models;
@@ -55,6 +56,8 @@ namespace BetterTTD.App.UI.Main
 
         public void OnServerConsole(string origin, string message)
         {
+            var msg = new OnServerConsoleMessage(origin, message);
+            MessageBus.Current.SendMessage(msg);
         }
 
         public void OnServerClientInfo(Client client)

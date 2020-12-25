@@ -7,7 +7,12 @@
     xmlns:console="clr-namespace:BetterTTD.App.UI.Console"
     x:Class="BetterTTD.App.UI.Console.ConsoleView"
     mc:Ignorable="d">
-    <Grid>
-        <TextBlock>ConsoleView</TextBlock>
-    </Grid>
+    <DockPanel>
+        <DataGrid Items="{Binding ConsoleMessages}" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" />
+                <DataGridTextColumn Header="Message" Binding="{Binding Message}" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
 </UserControl>

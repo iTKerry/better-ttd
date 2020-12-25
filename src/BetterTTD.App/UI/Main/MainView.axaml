@@ -24,7 +24,7 @@
         </StackPanel>
         <TabControl>
             <TabItem Header="Chat"><chat:ChatPresenter /></TabItem>
-            <TabItem Header="Chat"><console:ConsolePresenter /></TabItem>
+            <TabItem Header="Console"><console:ConsolePresenter /></TabItem>
         </TabControl>
     </DockPanel>
 </UserControl>

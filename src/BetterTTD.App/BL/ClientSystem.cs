@@ -3,6 +3,7 @@ using Akka.Actor;
 using BetterTTD.Actors.Abstractions;
 using BetterTTD.Actors.ClientBridgeGroup;
 using BetterTTD.Actors.ClientGroup;
+using BetterTTD.App.BL.Bridges;
 
 namespace BetterTTD.App.BL
 {

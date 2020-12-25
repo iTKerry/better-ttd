@@ -2,7 +2,7 @@
 using BetterTTD.Actors.Abstractions;
 using BetterTTD.Actors.ClientGroup;
 
-namespace BetterTTD.App.BL
+namespace BetterTTD.App.BL.Bridges
 {
     public class ConnectBridge : IConnectBridge
     {

@@ -3,7 +3,7 @@ using BetterTTD.Actors.Abstractions;
 using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Network;
 
-namespace BetterTTD.App.BL
+namespace BetterTTD.App.BL.Bridges
 {
     public class ClientBridge : IClientBridge
     {
