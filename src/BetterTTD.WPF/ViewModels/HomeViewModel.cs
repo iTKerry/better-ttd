@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Akka.Util.Internal;
-using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
@@ -17,9 +16,8 @@ using Newtonsoft.Json;
 
 namespace BetterTTD.WPF.ViewModels
 {
-    public class HomeViewModel : BaseViewModel, IClientView
+    public class HomeViewModel : BaseViewModel
     {
-        private readonly IClientCommander _commander;
         private Protocol _protocol;
         private readonly Dictionary<int, string> _commands;
         public List<ClientModel> Clients { get; set; } = new List<ClientModel>();
@@ -41,7 +39,6 @@ namespace BetterTTD.WPF.ViewModels
         public HomeViewModel(ClientSystem system)
         {
             _commands = new Dictionary<int, string>();
-            _commander = system.CreateClientCommander(this);
         }
 
         public void OnProtocol(Protocol protocol)
@@ -52,8 +49,6 @@ namespace BetterTTD.WPF.ViewModels
 
         public void OnServerWelcome(Game game)
         {
-            _commander.SetDefaultUpdateFrequency(_protocol);
-            _commander.PollAll(_protocol);
             
             var json = JsonConvert.SerializeObject(game, Formatting.Indented);
             Console.WriteLine($"{nameof(OnServerWelcome)}: {json}");

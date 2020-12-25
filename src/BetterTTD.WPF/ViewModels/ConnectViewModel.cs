@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using BetterTTD.Actors.ClientGroup;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace BetterTTD.WPF.ViewModels
 {
-    public class ConnectViewModel : BaseViewModel, IConnectorView
+    public class ConnectViewModel : BaseViewModel
     {
         private ClientSystem _system;
-        private IClientConnector _connector;
         private bool _isRunning;
 
         public RelayCommand LoginCommand => new RelayCommand(LoginCommandHandler);
@@ -63,8 +61,6 @@ namespace BetterTTD.WPF.ViewModels
 
                 Task.Delay(TimeSpan.FromMilliseconds(50));
                 
-                _connector = _system.CreateClientConnector(this);
-                _connector.Connect(Host, Port, Password);
             });
         }
 

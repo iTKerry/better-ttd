@@ -1,34 +1,38 @@
 ﻿#nullable enable
 
 using System.Threading.Tasks;
-using BetterTTD.Actors.ClientGroup;
+using BetterTTD.Actors.Abstractions;
 using BetterTTD.App.BL;
 using BetterTTD.App.UI.Connect.Abstractions;
+using BetterTTD.App.UI.Main;
 using Splat;
 
 namespace BetterTTD.App.UI.Connect
 {
-    public class ConnectInteractor : IConnectInteractor, IConnectorView
+    public class ConnectInteractor : IConnectInteractor, IConnectView
     {
         private readonly IConnectInteractorNotifier _notifier;
         
         private ClientSystem? _system;
-        private IClientConnector? _connector;
         
         public ConnectInteractor(IConnectInteractorNotifier notifier)
         {
             _notifier = notifier;
         }
 
-        public async Task ConnectAsync(string host, int port, string password) =>
-            await Task.Run(() =>
-            {
-                _system = new ClientSystem("ottd-system");
-                Locator.CurrentMutable.RegisterConstant(_system);
+        public async Task ConnectAsync(string host, int port, string password)
+        {
+            _system = new ClientSystem("ottd-system");
+            Locator.CurrentMutable.RegisterConstant(_system);
+            Locator.CurrentMutable.UnregisterCurrent<MainPresenter>();
+            Locator.CurrentMutable.RegisterLazySingleton(() => new MainPresenter(null));
+            Locator.Current.GetService<MainPresenter>();
 
-                _connector = _system.CreateClientConnector(this);
-                _connector.Connect(host, port, password);
-            });
+            await Task.Delay(100);
+
+            var bridge = _system.CreateConnectBridge(this);
+            bridge.Connect(host, port, password);
+        }
 
         public async Task ConnectResponse(bool connected, string? error = null)
         {

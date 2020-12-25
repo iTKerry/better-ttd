@@ -41,6 +41,7 @@ namespace BetterTTD.App.UI.Connect
 
             Host = "127.0.0.1";
             Port = 3977;
+            Password = "p7gvv";
         }
         
         private readonly ReactiveCommand<Unit, Unit> _connect;

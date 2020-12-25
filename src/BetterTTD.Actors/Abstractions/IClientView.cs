@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿#nullable enable
+using System.Collections.Generic;
 using BetterTTD.Domain.Entities;
 using BetterTTD.Domain.Enums;
 using BetterTTD.Network;
 
-namespace BetterTTD.Actors.ClientGroup
+namespace BetterTTD.Actors.Abstractions
 {
     public interface IClientView
     {

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Akka.Actor;
+using BetterTTD.Actors.Abstractions;
 using BetterTTD.Actors.ClientBridgeGroup;
 using BetterTTD.Actors.ClientGroup;
 
@@ -16,16 +17,16 @@ namespace BetterTTD.App.BL
             _clientActor = _actorSystem.ActorOf(ClientActor.Props(), nameof(ClientActor));
         }
 
-        public IClientCommander CreateClientCommander(IClientView view)
+        public IClientBridge CreateClientBridge(IClientView view)
         {
             var bridgeActor = _actorSystem.ActorOf(ClientBridgeActor.Props(view, _clientActor), nameof(ClientBridgeActor));
-            return new ClientCommander(bridgeActor);
+            return new ClientBridge(bridgeActor);
         }
 
-        public IClientConnector CreateClientConnector(IConnectorView view)
+        public IConnectBridge CreateConnectBridge(IConnectView view)
         {
-            var connectorActor = _actorSystem.ActorOf(ConnectBridgeActor.Props(_clientActor, view), nameof(ConnectBridgeActor));
-            return new ClientConnector(connectorActor);
+            var connectActor = _actorSystem.ActorOf(ConnectBridgeActor.Props(view, _clientActor), nameof(ConnectBridgeActor));
+            return new ConnectBridge(connectActor);
         }
 
         public async Task TerminateAsync()

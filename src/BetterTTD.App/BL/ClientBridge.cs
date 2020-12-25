@@ -1,19 +1,15 @@
 ﻿using Akka.Actor;
+using BetterTTD.Actors.Abstractions;
+using BetterTTD.Actors.ClientGroup;
 using BetterTTD.Network;
 
-namespace BetterTTD.Actors.ClientGroup
+namespace BetterTTD.App.BL
 {
-    public interface IClientCommander
-    {
-        void SetDefaultUpdateFrequency(Protocol protocol);
-        void PollAll(Protocol protocol);
-    }
-
-    public class ClientCommander : IClientCommander
+    public class ClientBridge : IClientBridge
     {
         private readonly IActorRef _bridgeActor;
 
-        public ClientCommander(IActorRef bridgeActor)
+        public ClientBridge (IActorRef bridgeActor)
         {
             _bridgeActor = bridgeActor;
         }
