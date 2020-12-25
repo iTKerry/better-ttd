@@ -24,9 +24,8 @@ namespace BetterTTD.App.UI.Connect
             await Task.Run(() =>
             {
                 _system = new ClientSystem("ottd-system");
-                
                 Locator.CurrentMutable.RegisterConstant(_system);
-                
+
                 _connector = _system.CreateClientConnector(this);
                 _connector.Connect(host, port, password);
             });

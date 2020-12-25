@@ -8,10 +8,7 @@ namespace BetterTTD.App.UI.Root
     {
         public RootWindow()
         {
-            this.WhenActivated(disposables =>
-            {
-                ViewModel.ConnectCommand.Execute(null);
-            });
+            this.WhenActivated(disposables => { });
             AvaloniaXamlLoader.Load(this);
         }
     }

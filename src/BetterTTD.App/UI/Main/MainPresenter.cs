@@ -1,4 +1,6 @@
-﻿using ReactiveUI;
+﻿#nullable enable
+
+using ReactiveUI;
 using Splat;
 
 namespace BetterTTD.App.UI.Main
@@ -9,7 +11,7 @@ namespace BetterTTD.App.UI.Main
         
         public IScreen HostScreen { get; }
 
-        public MainPresenter(IScreen screen)
+        public MainPresenter(IScreen? screen)
         {
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
         }

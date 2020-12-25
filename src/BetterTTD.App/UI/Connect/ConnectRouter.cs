@@ -1,4 +1,5 @@
-﻿using BetterTTD.App.UI.Connect.Abstractions;
+﻿using Avalonia.Threading;
+using BetterTTD.App.UI.Connect.Abstractions;
 using BetterTTD.App.UI.Main;
 using ReactiveUI;
 
@@ -17,7 +18,10 @@ namespace BetterTTD.App.UI.Connect
 
         public void NavigateToMain()
         {
-            _router.NavigateAndReset.Execute(new MainPresenter(_screen));
+            Dispatcher.UIThread.Post(() =>
+            {
+                _router.NavigateAndReset.Execute(new MainPresenter(_screen));
+            });
         }
     }
 }

@@ -1,0 +1,24 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance main:MainPresenter, IsDesignTimeCreatable=True}"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:main="clr-namespace:BetterTTD.App.UI.Main"
+    xmlns:chat="clr-namespace:BetterTTD.App.UI.Chat"
+    xmlns:console="clr-namespace:BetterTTD.App.UI.Console"
+    x:Class="BetterTTD.App.UI.Main.MainView"
+    mc:Ignorable="d">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="chat:ChatPresenter">
+            <chat:ChatView />
+        </DataTemplate>
+        <DataTemplate DataType="console:ConsolePresenter">
+            <console:ConsoleView />
+        </DataTemplate>
+    </UserControl.DataTemplates>
+    <TabControl>
+        <TabItem Header="Chat"><chat:ChatPresenter /></TabItem>
+        <TabItem Header="Chat"><console:ConsolePresenter /></TabItem>
+    </TabControl>
+</UserControl>

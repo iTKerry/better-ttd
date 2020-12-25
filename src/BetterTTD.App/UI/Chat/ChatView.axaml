@@ -1,0 +1,13 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance chat:ChatPresenter, IsDesignTimeCreatable=True}"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:chat="clr-namespace:BetterTTD.App.UI.Chat"
+    x:Class="BetterTTD.App.UI.Chat.ChatView"
+    mc:Ignorable="d">
+    <Grid>
+        <TextBlock>ChatView</TextBlock>
+    </Grid>
+</UserControl>

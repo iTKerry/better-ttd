@@ -10,7 +10,7 @@
         Title="BetterTTD">
     <reactiveUi:RoutedViewHost Router="{Binding Router}">
         <reactiveUi:RoutedViewHost.DefaultContent>
-            <TextBlock Text="..." />
+            <Button Command="{Binding ConnectCommand}">Start</Button>
         </reactiveUi:RoutedViewHost.DefaultContent>
     </reactiveUi:RoutedViewHost>
 </Window>

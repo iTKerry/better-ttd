@@ -1,6 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Markup.Xaml;
+using BetterTTD.App.UI.Chat;
 using BetterTTD.App.UI.Connect;
+using BetterTTD.App.UI.Console;
+using BetterTTD.App.UI.Main;
 using BetterTTD.App.UI.Root;
 using ReactiveUI;
 using Splat;
@@ -15,6 +18,9 @@ namespace BetterTTD.App
         {
             Locator.CurrentMutable.RegisterConstant<IScreen>(new RootPresenter());
             Locator.CurrentMutable.Register<IViewFor<ConnectPresenter>>(() => new ConnectView());
+            Locator.CurrentMutable.Register<IViewFor<MainPresenter>>(() => new MainView());
+            Locator.CurrentMutable.Register<IViewFor<ChatPresenter>>(() => new ChatView());
+            Locator.CurrentMutable.Register<IViewFor<ConsolePresenter>>(() => new ConsoleView());
 
             new RootWindow {DataContext = Locator.Current.GetService<IScreen>()}.Show();
             base.OnFrameworkInitializationCompleted();
