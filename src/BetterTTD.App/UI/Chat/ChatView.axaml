@@ -8,7 +8,7 @@
     x:Class="BetterTTD.App.UI.Chat.ChatView"
     mc:Ignorable="d">
     <DockPanel>
-        <DataGrid Items="{Binding ChatMessages}" IsReadOnly="True">
+        <DataGrid Items="{Binding ChatMessages}" IsReadOnly="True" CanUserSortColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="" Binding="{Binding DestType}" />
                 <DataGridTextColumn Header="#" Binding="{Binding ClientId}" />

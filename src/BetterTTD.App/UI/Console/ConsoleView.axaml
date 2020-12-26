@@ -8,7 +8,7 @@
     x:Class="BetterTTD.App.UI.Console.ConsoleView"
     mc:Ignorable="d">
     <DockPanel>
-        <DataGrid Items="{Binding ConsoleMessages}" IsReadOnly="True">
+        <DataGrid Items="{Binding ConsoleMessages}" IsReadOnly="True" CanUserSortColumns="False">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Origin" Binding="{Binding Origin}" />
                 <DataGridTextColumn Header="Message" Binding="{Binding Message}" />

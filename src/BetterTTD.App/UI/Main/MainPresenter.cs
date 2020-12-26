@@ -2,13 +2,12 @@
 
 using BetterTTD.App.BL.Models;
 using BetterTTD.App.UI.Main.Abstractions;
-using DynamicData.Binding;
 using ReactiveUI;
 using Splat;
 
 namespace BetterTTD.App.UI.Main
 {
-    public class MainPresenter : ReactiveObject, IRoutableViewModel, IMainInteractorNotifier
+    public partial class MainPresenter : ReactiveObject, IRoutableViewModel, IMainInteractorNotifier
     {
         private readonly IMainInteractor _interactor;
 
@@ -22,20 +21,6 @@ namespace BetterTTD.App.UI.Main
             _interactor = new MainInteractor(this);
         }
 
-        private string _clients = "Clients: 0";
-        public string Clients
-        {
-            get => _clients;
-            set => this.RaiseAndSetIfChanged(ref  _clients, value);
-        }
-
-        private string _companies = "Companies: 0";
-        public string Companies
-        {
-            get => _companies;
-            set => this.RaiseAndSetIfChanged(ref  _companies, value);
-        }
-
         public void ClientCountUpdate(int count)
         {
             Clients = $"Clients: {count}";
@@ -46,9 +31,9 @@ namespace BetterTTD.App.UI.Main
             Companies = $"Companies: {count}";
         }
 
-        public void ChatMessageUpdate(ChatModel message)
+        public void GameUpdate(GameModel game)
         {
-            //ChatMessages.Add(message);
+            Game = game;
         }
     }
 }

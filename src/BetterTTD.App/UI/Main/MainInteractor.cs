@@ -42,9 +42,11 @@ namespace BetterTTD.App.UI.Main
         public void OnServerWelcome(Game game)
         {
             _game = game;
-            
+
             _bridge.SetDefaultUpdateFrequency(_protocol);
             _bridge.PollAll(_protocol);
+            
+            _notifier.GameUpdate(new GameModel(_game));
         }
 
         public void OnServerCmdNames(Dictionary<int, string> cmdNames)
@@ -108,6 +110,15 @@ namespace BetterTTD.App.UI.Main
 
         public void OnServerCompanyRemove(int companyId, AdminCompanyRemoveReason removeReason)
         {
+        }
+
+        public void OnServerDate(GameDate date)
+        {
+            if (_game is null) 
+                return;
+
+            _game.Map.CurrentDate = date;
+            _notifier.GameUpdate(new GameModel(_game));
         }
     }
 }
