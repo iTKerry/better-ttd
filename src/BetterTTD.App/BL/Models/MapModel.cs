@@ -17,16 +17,17 @@ namespace BetterTTD.App.BL.Models
 
         public MapModel(Map map)
         {
-            var startDate = map.StartDate;
-            var currentDate = map.CurrentDate;
-            
             Name = map.Name;
             Landscape = map.Landscape;
-            StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
-            CurrentDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day);
             Seed = map.Seed;
             Width = map.Width;
             Height = map.Height;
+
+            if (map.StartDate is { } startDate)
+                StartDate = new DateTime(startDate.Year, startDate.Month, startDate.Day);
+            
+            if (map.CurrentDate is { } currentDate)
+                CurrentDate = new DateTime(currentDate.Year, currentDate.Month, currentDate.Day);
         }
         
         public string? Name

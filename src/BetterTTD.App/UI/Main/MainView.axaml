@@ -7,8 +7,12 @@
     xmlns:main="clr-namespace:BetterTTD.App.UI.Main"
     xmlns:chat="clr-namespace:BetterTTD.App.UI.Chat"
     xmlns:console="clr-namespace:BetterTTD.App.UI.Console"
+    xmlns:converters="clr-namespace:BetterTTD.App.UI.Converters"
     x:Class="BetterTTD.App.UI.Main.MainView"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <converters:LandscapeConverter x:Key="LandscapeConverter" />
+    </UserControl.Resources>
     <UserControl.DataTemplates>
         <DataTemplate DataType="chat:ChatPresenter">
             <chat:ChatView />
@@ -22,7 +26,14 @@
         <TabItem Header="Console"><console:ConsolePresenter /></TabItem>
         <TabControl.Tag>
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="16">
-                <TextBlock Text="{Binding Path=Game.Map.Landscape}"></TextBlock>
+                <TextBlock Text="{Binding Game.GameVersion}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Size: " />
+                    <TextBlock Text="{Binding Game.Map.Width}" />
+                    <TextBlock Text="x" />
+                    <TextBlock Text="{Binding Game.Map.Height}" />    
+                </StackPanel>
+                <TextBlock Text="{Binding Game.Map.Landscape, Converter={StaticResource LandscapeConverter}}" />
                 <TextBlock Text="{Binding Clients}" />
                 <TextBlock Text="{Binding Companies}" />
             </StackPanel>

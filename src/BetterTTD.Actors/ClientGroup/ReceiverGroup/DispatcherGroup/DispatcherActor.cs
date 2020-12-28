@@ -82,6 +82,9 @@ namespace BetterTTD.Actors.ClientGroup.ReceiverGroup.DispatcherGroup
                 case "receiveServerDate":
                     ReceiveServerDate(msg.Packet);
                     break;
+                case "receiveServerNewgame":
+                    ReceiveServerNewGame(msg.Packet);
+                    break;
                 default:
                     _log.Warning($"Unhandled action: {dispatchName}");
                     break;
@@ -240,6 +243,11 @@ namespace BetterTTD.Actors.ClientGroup.ReceiverGroup.DispatcherGroup
             var date = new GameDate(packet.ReadUint32());
 
             _clientBridge.Tell(new OnServerDateMessage(date));
+        }
+        
+        private void ReceiveServerNewGame(Packet packet)
+        {
+            throw new NotImplementedException();
         }
     }
 }

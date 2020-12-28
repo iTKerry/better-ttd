@@ -11,7 +11,7 @@
     <Style Selector="TabControl.sidebar">
         <Setter Property="TabStripPlacement" Value="Left"/>
         <Setter Property="Padding" Value="8 0 0 0"/>
-        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border 
@@ -32,7 +32,7 @@
                                 ItemTemplate="{TemplateBinding ItemTemplate}">
                             </ItemsPresenter>
                         </ScrollViewer>
-                        <ContentControl Content="{TemplateBinding Tag}" HorizontalContentAlignment="Right" DockPanel.Dock="Bottom"/>
+                        <ContentControl Content="{TemplateBinding Tag}" Background="{DynamicResource ThemeAccentBrush}" Padding="5" Foreground="White" HorizontalContentAlignment="Right" DockPanel.Dock="Bottom"/>
                         <ScrollViewer
                             HorizontalScrollBarVisibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(ScrollViewer.HorizontalScrollBarVisibility)}"
                             VerticalScrollBarVisibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SelectedItem.(ScrollViewer.VerticalScrollBarVisibility)}">

@@ -69,6 +69,7 @@ namespace BetterTTD.App.UI.Main
                 .Match(
                     model =>
                     {
+                        if (_clients.Contains(model)) return;
                         _clients.Add(model);
                         _notifier.ClientCountUpdate(_clients.Count);
                     },
