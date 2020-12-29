@@ -70,7 +70,7 @@ module Enums =
         | ADMIN_UPDATE_GAMESCRIPT      = 9
         | ADMIN_UPDATE_END             = 10
         
-    type Colors =
+    type Color =
         | DARK_BLUE   = 0
         | PALE_GREEN  = 1
         | PINK        = 2
