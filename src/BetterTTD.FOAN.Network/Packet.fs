@@ -1,10 +1,10 @@
-﻿namespace BetterTTD.FOAN
+﻿namespace BetterTTD.FOAN.Network
 
-open System
-open System.Text
+module Packet =
+        
+    open System
+    open System.Text
 
-module Network =
-    
     type Packet = {
         Size     : uint16
         Position : int
@@ -19,12 +19,13 @@ module Network =
     
     // write
     
-    let private getBytes (value:Object) =
+    let private getBytes (value : Object) =
         match value with
         | :? uint16 as x -> BitConverter.GetBytes (x)
         | :? uint32 as x -> BitConverter.GetBytes (x)
         | :? uint64 as x -> BitConverter.GetBytes (x)
-        | :? int64 as x  -> BitConverter.GetBytes (x)
+        | :? int64  as x -> BitConverter.GetBytes (x)
+        | :? byte   as x -> [| x |]
         | _              -> failwithf "Invalid type matched!"
     
     let private write value shift packet =
@@ -33,6 +34,22 @@ module Network =
         for i in 0 .. (shift - 1) do
             buffer.[Convert.ToInt32 size + i] <- bytes.[i]
         { packet with Size = size + Convert.ToUInt16 shift }
+        
+    let writeByte (value : byte) packet =
+        write value 1 packet
+        
+    let writeString (value : string) packet =
+        let rec write (bytes : byte list) pac =
+            match bytes with
+            | [ head ] -> writeByte head pac
+            | head::tail ->
+                let p = writeByte head pac
+                write tail p
+            | _ -> failwithf "Bytes are empty!" 
+        Encoding.Default.GetBytes (value)
+        |> Array.toList
+        |> (fun bytes -> write bytes packet)
+        |> (writeByte 0uy)
         
     let writeU16 (value : uint16) packet =
         write value 2 packet
@@ -90,7 +107,14 @@ module Network =
         (Encoding.Default.GetString bytes, { packet with Position = pos })
     
     // factory
-    
+
+    let prepareToSend packet =
+        let { Size = size; Position = _; Buffer = buffer } = packet
+        let bytes = BitConverter.GetBytes (size)
+        buffer.[0] <- bytes.[0]
+        buffer.[1] <- bytes.[1]
+        { packet with Position = 2 }
+        
     let createPacket =
         { Size = defaultSize
           Position = defaultPos
