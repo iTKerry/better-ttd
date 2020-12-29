@@ -10,7 +10,8 @@ module Enums =
         | ADMIN_PACKET_ADMIN_CHAT              = 4 
         | ADMIN_PACKET_ADMIN_RCON              = 5
         | ADMIN_PACKET_ADMIN_GAMESCRIPT        = 6 
-        | ADMIN_PACKET_ADMIN_PING              = 7 
+        | ADMIN_PACKET_ADMIN_PING              = 7
+        
         | ADMIN_PACKET_SERVER_FULL             = 100
         | ADMIN_PACKET_SERVER_BANNED           = 101
         | ADMIN_PACKET_SERVER_ERROR            = 102
@@ -39,6 +40,7 @@ module Enums =
         | ADMIN_PACKET_SERVER_RCON_END         = 125
         | ADMIN_PACKET_SERVER_PONG             = 126
         | ADMIN_PACKET_SERVER_END              = 127
+        
         | INVALID_ADMIN_PACKET                 = 0xFF
     
     type AdminCompanyRemoveReason =
