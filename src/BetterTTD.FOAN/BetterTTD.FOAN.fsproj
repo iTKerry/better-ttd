@@ -6,6 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Actors.fs" />
+        <Compile Include="Network.fs" />
         <Compile Include="Counter.fs" />
         <Compile Include="About.fs" />
         <Compile Include="Shell.fs" />
@@ -14,6 +16,7 @@
     </ItemGroup>
     
     <ItemGroup>
+        <PackageReference Include="Akka.FSharp" Version="1.4.13" />
         <PackageReference Include="Avalonia.Desktop" Version="0.9.7" />
         <PackageReference Include="JaggerJo.Avalonia.FuncUI" Version="0.4.0" />
         <PackageReference Include="JaggerJo.Avalonia.FuncUI.DSL" Version="0.4.0" />
