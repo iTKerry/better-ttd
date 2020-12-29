@@ -30,7 +30,7 @@ module Network =
     let private write value shift packet =
         let { Size = size; Position = _; Buffer = buffer } = packet
         let bytes = getBytes value
-        for i in 0..shift do
+        for i in 0 .. shift -1 do
             buffer.[Convert.ToInt32 size + i] <- bytes.[i]
         { packet with Size = size + Convert.ToUInt16 shift }
         
