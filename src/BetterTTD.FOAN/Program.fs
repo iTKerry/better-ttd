@@ -7,6 +7,7 @@ open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 
 open BetterTTD.FOAN.Actors.ActorsModule
+open BetterTTD.FOAN.Actors.MessagesModule
 
 type App() =
     inherit Application()
@@ -14,15 +15,9 @@ type App() =
     let system = System.create "System" <| Configuration.load ()
     
     override this.Initialize() =
-        let senderRef = spawn system "sender" sender
-        let receiverRef = spawn system "receiver" receiver
-        let _ = spawn system "adminCoordinator" <| adminCoordinator senderRef receiverRef
         
-        system.Scheduler.ScheduleTellRepeatedly(
-            TimeSpan.FromMilliseconds (0.),
-            TimeSpan.FromMilliseconds (1.),
-            receiverRef,
-            ReceiveMsg)
+        let admin = spawn system "adminCoordinator" <| adminCoordinator 
+        admin <! Connect("127.0.0.1", "p7gvv", 3977)
         
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"

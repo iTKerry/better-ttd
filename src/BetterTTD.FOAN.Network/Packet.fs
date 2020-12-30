@@ -1,6 +1,6 @@
 ﻿namespace BetterTTD.FOAN.Network
 
-module Packet =
+module PacketModule =
         
     open System
     open System.Text

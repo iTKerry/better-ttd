@@ -5,11 +5,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Messages.fs" />
+        <Compile Include="TransformModule.fs" />
         <Compile Include="Actors.fs" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Akka.FSharp" Version="1.4.13" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BetterTTD.FOAN.Network\BetterTTD.FOAN.Network.fsproj" />
     </ItemGroup>
     
 </Project>
