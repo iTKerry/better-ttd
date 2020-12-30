@@ -7,39 +7,14 @@ open Akka.Actor
 open System
 open System.Net.Sockets
 
-open BetterTTD.FOAN.Actors.MessagesModule
-open BetterTTD.FOAN.Actors.TransformModule
+open BetterTTD.FOAN.Actors.ActorMessages
+open BetterTTD.FOAN.Actors.AdminMessages
+open BetterTTD.FOAN.Actors.MessageTransformModule
 open BetterTTD.FOAN.Network.PacketModule
 open BetterTTD.FOAN.Network.Enums
 
 module ActorsModule =
 
-    type AdminConnectionState =
-        | Idle
-        /// <summary>
-        /// Establishing connection.
-        /// Status will turn into <see cref="Connected"/>
-        /// </summary>
-        | Connecting
-        /// <summary>
-        /// Connection established
-        /// </summary>
-        | Connected
-        /// <summary>
-        /// Server is closing connection - sending quit message.
-        /// Status will turn into <see cref="Idle"/> after a while
-        /// </summary>
-        | Disconnecting
-        /// <summary>
-        /// This happens when there was an error with current connection.
-        /// Client will try to graceful send quit message to the server and after a while it will try to connect again.
-        /// </summary>
-        | Errored
-        /// <summary>
-        /// This state indicates fatal error and no more operations can be done on the client.
-        /// </summary>
-        | ErroredOut
-    
     let sender (socket : Socket) (mailbox : Actor<_>) =
         let rec loop() = actor {
             match! mailbox.Receive () with
@@ -74,8 +49,12 @@ module ActorsModule =
             return! connected receiver sender socket
         }
         
-        let rec notConnected () = actor {
-            match! mailbox.Receive () with
+        let rec connecting (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
+            return! connecting receiver sender socket
+        }
+        
+        let rec idle () = actor {
+            match! mailbox.Receive() with
             | Connect(host, pass, port) ->
                 let soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
                 soc.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true)
@@ -83,7 +62,7 @@ module ActorsModule =
                 
                 let senderRef = spawn mailbox "sender" (sender soc)
                 let receiverRef = spawn mailbox "receiver" (receiver soc)
-                let pac = Connect (host, pass, port) |> msgToPacket
+                let pac = AdminJoin { Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0" } |> msgToPacket
                 
                 mailbox.Context.System.Scheduler.ScheduleTellRepeatedly(
                     TimeSpan.FromMilliseconds (0.),
@@ -92,10 +71,19 @@ module ActorsModule =
                     ReceiveMsg)
                 
                 senderRef <! pac
-                return! connected receiverRef senderRef soc
+                return! connecting receiverRef senderRef soc
                 
-            return! notConnected ()
+            return! idle ()
         }
         
-        notConnected ()
+        (*
+        let rec errored (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
+            return! errored receiver sender socket
+        }
+        
+        let rec fatal (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
+            return! fatal receiver sender socket
+        }
+        *)
     
+        idle ()
