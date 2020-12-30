@@ -1,19 +1,45 @@
 ﻿namespace BetterTTD.FOAN.Actors
 
 
+open Akka.FSharp
+open Akka.Actor
+
+open System
+open System.Net.Sockets
+
+open BetterTTD.FOAN.Actors.MessagesModule
+open BetterTTD.FOAN.Actors.TransformModule
+open BetterTTD.FOAN.Network.PacketModule
+open BetterTTD.FOAN.Network.Enums
+
 module ActorsModule =
 
-    open Akka.FSharp
-    open Akka.Actor
-
-    open System
-    open System.Net.Sockets
-
-    open BetterTTD.FOAN.Actors.MessagesModule
-    open BetterTTD.FOAN.Actors.TransformModule
-    open BetterTTD.FOAN.Network.PacketModule
-    open BetterTTD.FOAN.Network.Enums
-
+    type AdminConnectionState =
+        | Idle
+        /// <summary>
+        /// Establishing connection.
+        /// Status will turn into <see cref="Connected"/>
+        /// </summary>
+        | Connecting
+        /// <summary>
+        /// Connection established
+        /// </summary>
+        | Connected
+        /// <summary>
+        /// Server is closing connection - sending quit message.
+        /// Status will turn into <see cref="Idle"/> after a while
+        /// </summary>
+        | Disconnecting
+        /// <summary>
+        /// This happens when there was an error with current connection.
+        /// Client will try to graceful send quit message to the server and after a while it will try to connect again.
+        /// </summary>
+        | Errored
+        /// <summary>
+        /// This state indicates fatal error and no more operations can be done on the client.
+        /// </summary>
+        | ErroredOut
+    
     let sender (socket : Socket) (mailbox : Actor<_>) =
         let rec loop() = actor {
             match! mailbox.Receive () with
