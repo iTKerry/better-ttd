@@ -1,15 +1,29 @@
 namespace BetterTTD.FOAN
 
+open System
+open Akka.FSharp
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes
 open Avalonia.FuncUI
 
-/// This is your application you can ose the initialize method to load styles
-/// or handle Life Cycle events of your application
+open BetterTTD.FOAN.Actors.ActorsModule
+
 type App() =
     inherit Application()
 
+    let system = System.create "System" <| Configuration.load ()
+    
     override this.Initialize() =
+        let senderRef = spawn system "sender" sender
+        let receiverRef = spawn system "receiver" receiver
+        let _ = spawn system "adminCoordinator" <| adminCoordinator senderRef receiverRef
+        
+        system.Scheduler.ScheduleTellRepeatedly(
+            TimeSpan.FromMilliseconds (0.),
+            TimeSpan.FromMilliseconds (1.),
+            receiverRef,
+            ReceiveMsg)
+        
         this.Styles.Load "avares://Avalonia.Themes.Default/DefaultTheme.xaml"
         this.Styles.Load "avares://Avalonia.Themes.Default/Accents/BaseDark.xaml"
         this.Styles.Load "avares://BetterTTD.FOAN/Styles.xaml"

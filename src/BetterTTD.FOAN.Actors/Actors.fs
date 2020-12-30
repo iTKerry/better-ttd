@@ -1,12 +1,16 @@
 ﻿namespace BetterTTD.FOAN.Actors
 
-module Actors =
+module ActorsModule =
 
+    open Akka.Actor
     open Akka.FSharp
     
-    let adminCoordinator (mailbox : Actor<_>) =
+    type ReceiverMsg = ReceiveMsg
+    
+    let adminCoordinator (sender : IActorRef) (receiver : IActorRef) (mailbox : Actor<_>) =
         let rec loop() = actor {
             let! message = mailbox.Receive ()
+            printfn "admin is working and doing well"
             // handle here
             return! loop()
         }
@@ -21,10 +25,12 @@ module Actors =
         loop ()
     
     let receiver (mailbox : Actor<_>) =
-        let rec loop() = actor {
+        let rec loop () = actor {
             let! message = mailbox.Receive ()
-            // handle here
-            return! loop()
+            match message with
+            | ReceiveMsg -> printfn "receiver receiving"
+            
+            return! loop ()
         }
         loop ()
             

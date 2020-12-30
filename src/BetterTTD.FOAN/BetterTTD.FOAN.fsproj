@@ -23,4 +23,9 @@
     <ItemGroup>
         <EmbeddedResource Remove=".template.config\**" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\BetterTTD.FOAN.Actors\BetterTTD.FOAN.Actors.fsproj" />
+      <ProjectReference Include="..\BetterTTD.FOAN.Network\BetterTTD.FOAN.Network.fsproj" />
+    </ItemGroup>
 </Project>
