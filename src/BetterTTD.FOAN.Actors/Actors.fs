@@ -7,9 +7,8 @@ open Akka.Actor
 open System
 open System.Net.Sockets
 
-open BetterTTD.FOAN.Actors.ActorMessages
-open BetterTTD.FOAN.Actors.AdminMessages
-open BetterTTD.FOAN.Actors.MessageTransformModule
+open BetterTTD.FOAN.Actors.ActorStateMessages
+open BetterTTD.FOAN.Actors.MessageTransform
 open BetterTTD.FOAN.Network.PacketModule
 open BetterTTD.FOAN.Network.Enums
 
@@ -18,8 +17,11 @@ module ActorsModule =
     let sender (socket : Socket) (mailbox : Actor<_>) =
         let rec loop() = actor {
             match! mailbox.Receive () with
-            | Packet { Buffer = buf; Position = pos } ->
-                socket.Send (buf, pos, SocketFlags.None) |> ignore
+            | Packet packet ->
+                let { Buffer = buf; Position = pos } = prepareToSend packet
+                let res = socket.Send (buf, pos, SocketFlags.None)
+                printfn $"sent packet res {res}"
+                ()
             return! loop()
         }
         loop ()
@@ -41,7 +43,6 @@ module ActorsModule =
             return! loop ()
         }
         loop ()
-            
     
     let adminCoordinator (mailbox : Actor<_>) =
         
@@ -50,6 +51,15 @@ module ActorsModule =
         }
         
         let rec connecting (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
+            match! mailbox.Receive () with
+            | Protocol protocol ->
+                printfn "protocol received"
+                ()
+            | Welcome welcome ->
+                printfn "welcome received"
+                ()
+            | _ -> failwithf "Invalid state operation occured"
+            
             return! connecting receiver sender socket
         }
         
@@ -62,7 +72,7 @@ module ActorsModule =
                 
                 let senderRef = spawn mailbox "sender" (sender soc)
                 let receiverRef = spawn mailbox "receiver" (receiver soc)
-                let pac = AdminJoin { Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0" } |> msgToPacket
+                let packet = AdminJoin { Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0" } |> msgToPacket
                 
                 mailbox.Context.System.Scheduler.ScheduleTellRepeatedly(
                     TimeSpan.FromMilliseconds (0.),
@@ -70,20 +80,11 @@ module ActorsModule =
                     receiverRef,
                     ReceiveMsg)
                 
-                senderRef <! pac
+                senderRef <! Packet packet
                 return! connecting receiverRef senderRef soc
+            | _ -> failwithf "Invalid state operation occured"
                 
             return! idle ()
         }
         
-        (*
-        let rec errored (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
-            return! errored receiver sender socket
-        }
-        
-        let rec fatal (receiver : IActorRef) (sender : IActorRef) (socket : Socket) = actor {
-            return! fatal receiver sender socket
-        }
-        *)
-    
         idle ()
