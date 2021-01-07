@@ -18,9 +18,8 @@ module ActorsModule =
         let rec loop() = actor {
             match! mailbox.Receive () with
             | Packet packet ->
-                let { Buffer = buf; Position = pos } = prepareToSend packet
-                let res = socket.Send (buf, pos, SocketFlags.None)
-                printfn $"sent packet res {res}"
+                let { Buffer = buf; Size = size; } = prepareToSend packet
+                socket.Send (buf, int size, SocketFlags.None) |> ignore
                 ()
             return! loop()
         }
@@ -34,7 +33,7 @@ module ActorsModule =
                     let pac = createPacket
                     socket.Receive pac.Buffer |> ignore
                     let (x, pac) = readByte pac
-                    let pacType = enum<AdminUpdateType>(Convert.ToInt32 x)
+                    let pacType = enum<PacketType>(Convert.ToInt32 x)
                     
                     printfn "received %A" pacType
                 else
@@ -72,7 +71,9 @@ module ActorsModule =
                 
                 let senderRef = spawn mailbox "sender" (sender soc)
                 let receiverRef = spawn mailbox "receiver" (receiver soc)
-                let packet = AdminJoin { Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0" } |> msgToPacket
+                
+                let msg = AdminJoin { Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0" }
+                let packet = msgToPacket msg
                 
                 mailbox.Context.System.Scheduler.ScheduleTellRepeatedly(
                     TimeSpan.FromMilliseconds (0.),

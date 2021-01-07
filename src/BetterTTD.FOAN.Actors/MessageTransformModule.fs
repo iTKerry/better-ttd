@@ -13,8 +13,7 @@ module MessageTransform =
     
     let msgToPacket = function
         | AdminJoin { Password = pass; AdminName = name; AdminVersion = version } ->
-            createPacket
-            |> writeByte (% PacketType.ADMIN_PACKET_ADMIN_JOIN)
+            createPacketForType PacketType.ADMIN_PACKET_ADMIN_JOIN
             |> writeString pass
             |> writeString name
             |> writeString version
