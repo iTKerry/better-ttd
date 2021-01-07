@@ -112,13 +112,12 @@ module PacketModule =
 
     let prepareToSend packet =
         let { Size = size; Buffer = buffer } = packet
-        
         let bytes = BitConverter.GetBytes (size)
         
         buffer.[0] <- bytes.[0]
         buffer.[1] <- bytes.[1]
-        
-        packet
+        { packet with Position = 2 }
+
         
     let createPacket =
         { Size = defaultSize
