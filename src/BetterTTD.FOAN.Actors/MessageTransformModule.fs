@@ -3,7 +3,7 @@
 open System
 
 open BetterTTD.FOAN.Network.Enums
-open BetterTTD.FOAN.Actors.ActorStateMessages
+open BetterTTD.FOAN.Actors.Messages
 open BetterTTD.FOAN.Network.PacketModule
 
 module MessageTransform =
