@@ -15,15 +15,15 @@ module MessagesTypes =
           UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency> }
     
     type AdminServerWelcomeMessage = {
-        ServerName      : string option
-        NetworkRevision : string option
+        ServerName      : string
+        NetworkRevision : string
         IsDedicated     : bool
-        MapName         : string option
+        MapName         : string
         MapSeed         : uint32
         Landscape       : Landscape
-        CurrentDate     : string option
-        MapWidth        : uint16
-        MapHeight       : uint16
+        CurrentDate     : uint32
+        MapWidth        : int
+        MapHeight       : int
     }
     
 module Messages =
