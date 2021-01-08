@@ -7,9 +7,8 @@ open System
 open System.Net.Sockets
 
 open BetterTTD.FOAN.Actors.Messages
-open BetterTTD.FOAN.Actors.MessageTransform
+open BetterTTD.FOAN.Actors.MessageTransformer
 open BetterTTD.FOAN.Network.PacketModule
-open BetterTTD.FOAN.Network.Enums
 
 module ActorsModule =
 
@@ -31,10 +30,8 @@ module ActorsModule =
                 if socket.Connected then
                     let pac = createPacket
                     socket.Receive pac.Buffer |> ignore
-                    let (x, pac) = readByte pac
-                    let pacType = enum<PacketType>(Convert.ToInt32 x)
-                    
-                    printfn "received %A" pacType
+                    let msg = packetToMsg pac
+                    printfn "%A" msg
                 else
                     ()
             
@@ -53,7 +50,7 @@ module ActorsModule =
             actor {
                 let matchNest = function
                     | Protocol protocol ->
-                        printfn "protocol received"
+                        printfn "protocol received %A" protocol
                         connecting receiver sender socket
                     | Welcome welcome ->
                         printfn "welcome received"
