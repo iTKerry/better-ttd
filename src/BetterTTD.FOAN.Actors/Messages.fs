@@ -12,7 +12,7 @@ module MessagesTypes =
 
      type AdminServerProtocolMessage =
         { Version        : byte
-          UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency> }
+          UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency []> }
     
     type AdminServerWelcomeMessage = {
         ServerName      : string

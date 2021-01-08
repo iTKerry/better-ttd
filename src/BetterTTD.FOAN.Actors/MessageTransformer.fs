@@ -7,7 +7,9 @@ open BetterTTD.FOAN.Actors.Messages
 open BetterTTD.FOAN.Network.PacketModule
 
 module MessageTransformer =
-        
+    
+    open FSharpx.Collections
+    
     let msgToPacket = function
         | AdminJoin { Password = pass; AdminName = name; AdminVersion = version } ->
             createPacketForType PacketType.ADMIN_PACKET_ADMIN_JOIN
@@ -17,19 +19,27 @@ module MessageTransformer =
             
     let readServerProtocol packet =
         let (version, packet) = readByte packet
-        let rec readFreq (dict : Map<AdminUpdateType, AdminUpdateFrequency>) pac =
+        
+        let rec readFreq (dict : Map<AdminUpdateType, AdminUpdateFrequency []>) pac =
             let (next, pac) = readBool pac
             if (next) then
-                let (x, pac) = readU16 pac
-                let updateType = enum<AdminUpdateType>(int x)
-                let (x, pac) = readU16 pac
-                let freq = enum<AdminUpdateFrequency>(int x)
-                let newDict = dict.Add(updateType, freq)
+                let (updIdx, pac) = readU16 pac
+                let (freqIdx, pac) = readU16 pac
+                let upd = enum<AdminUpdateType>(int updIdx)
+                let newFrequencies =
+                    Enum.GetValues<AdminUpdateFrequency>()
+                    |> Array.filter (fun freq -> (int freqIdx &&& (int freq)) <> 0)
+                    |> Array.map (fun freq -> (upd, freq))
+                    |> Array.groupBy fst
+                    |> Array.map (fun (key, items) ->
+                        key, items |> Array.map snd |> Array.ofSeq)
+                    |> Map.ofSeq
+                let newDict = Map.union dict newFrequencies
                 readFreq newDict pac
             else
                 dict, pac
-            
-        let dict, _ = readFreq Map.empty packet
+                
+        let (dict, _) = readFreq Map.empty packet
         AdminServerProtocol { Version = version; UpdateSettings = dict }
     
     let readServerWelcome packet =
