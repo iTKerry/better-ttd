@@ -17,7 +17,11 @@ module ActorsModule =
         soc.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true)
         soc.Connect(host, port)
         soc
-        
+
+    let matchPacket = function
+        | AdminServerProtocol protocol -> Connecting (Protocol protocol)
+        | AdminServerWelcome welcome -> Connecting (Welcome welcome)
+    
     let sender (socket : Socket) (mailbox : Actor<_>) =
         let rec loop() =
             actor {
@@ -33,16 +37,12 @@ module ActorsModule =
     let receiver (socket : Socket) (mailbox : Actor<_>) =
         let rec loop () =
             actor {
-                let matchPacket = function
-                | AdminServerProtocol protocol -> mailbox.Context.Parent <! Connecting (Protocol protocol)
-                | AdminServerWelcome welcome -> mailbox.Context.Parent <! Connecting (Welcome welcome)
-                
                 match! mailbox.Receive () with
                 | ReceiveMsg ->
                     if socket.Connected then
                         let pac = createPacket
                         socket.Receive pac.Buffer |> ignore
-                        packetToMsg pac |> matchPacket
+                        mailbox.Context.Parent <! (matchPacket <| packetToMsg pac)
                     else
                         ()
                 return! loop ()
@@ -64,7 +64,7 @@ module ActorsModule =
                     connecting receiver sender socket
                 | Welcome welcome ->
                     printfn "welcome received %A" welcome
-                    connecting receiver sender socket
+                    connected receiver sender socket
                         
                 match! mailbox.Receive () with
                 | Connecting msg -> return! matchConnecting msg
