@@ -8,7 +8,9 @@
         <Compile Include="Messages.fs" />
         <Compile Include="MessageTransformer.fs" />
         <Compile Include="PacketTransformer.fs" />
-        <Compile Include="Actors.fs" />
+        <Compile Include="Actors\Sender.fs" />
+        <Compile Include="Actors\Receiver.fs" />
+        <Compile Include="Actors\AdminCoordinator.fs" />
     </ItemGroup>
 
     <ItemGroup>

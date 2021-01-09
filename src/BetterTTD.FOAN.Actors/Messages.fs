@@ -25,11 +25,15 @@ module MessagesTypes =
         MapWidth        : int
         MapHeight       : int
     }
-    
+
 module Messages =
     
     open MessagesTypes
-    
+
+    type UiMessage =
+        | ReceivedProtocol of AdminServerProtocolMessage
+        | ReceivedWelcome  of AdminServerWelcomeMessage
+        
     type PacketMessage =
         | AdminServerProtocol of AdminServerProtocolMessage
         | AdminServerWelcome  of AdminServerWelcomeMessage

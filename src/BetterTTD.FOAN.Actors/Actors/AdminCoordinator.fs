@@ -1,6 +1,6 @@
-﻿namespace BetterTTD.FOAN.Actors
+﻿namespace BetterTTD.FOAN.Actors.Actors
 
-module ActorsModule =
+module AdminCoordinator =
 
     open Akka.FSharp
     open Akka.Actor
@@ -10,48 +10,17 @@ module ActorsModule =
 
     open BetterTTD.FOAN.Actors.Messages
     open BetterTTD.FOAN.Actors.MessageTransformer
-    open BetterTTD.FOAN.Actors.PacketTransformer
-    open BetterTTD.FOAN.Network.PacketModule
-
-    let createSocket (host : string) (port : int) = 
+    open BetterTTD.FOAN.Actors.Receiver
+    open BetterTTD.FOAN.Actors.Sender
+    
+    let private createSocket (host : string) (port : int) = 
         let soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
         soc.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true)
         soc.Connect(host, port)
         soc
 
-    let matchPacket = function
-        | AdminServerProtocol protocol -> Connecting (Protocol protocol)
-        | AdminServerWelcome welcome -> Connecting (Welcome welcome)
-    
-    let sender (socket : Socket) (mailbox : Actor<_>) =
-        let rec loop() =
-            actor {
-                match! mailbox.Receive () with
-                | Packet packet ->
-                    let { Buffer = buf; Size = size; } = prepareToSend packet
-                    socket.Send (buf, int size, SocketFlags.None) |> ignore
-                    ()
-                return! loop()
-            }
-        loop ()
-    
-    let receiver (socket : Socket) (mailbox : Actor<_>) =
-        let rec loop () =
-            actor {
-                match! mailbox.Receive () with
-                | ReceiveMsg ->
-                    if socket.Connected then
-                        let pac = createPacket
-                        socket.Receive pac.Buffer |> ignore
-                        mailbox.Context.Parent <! (matchPacket <| packetToMsg pac)
-                    else
-                        ()
-                return! loop ()
-            }
-        loop ()
-    
-    let adminCoordinator (mailbox : Actor<_>) =
-        
+    let adminCoordinator dispatch (mailbox : Actor<_>) =
+        printfn "actor initialized"
         let rec connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
             actor {
                 return! connected receiver sender socket
@@ -61,10 +30,10 @@ module ActorsModule =
             actor {
                 let matchConnecting = function
                 | Protocol protocol ->
-                    printfn "protocol received %A" protocol
+                    dispatch <| ReceivedProtocol protocol
                     connecting receiver sender socket
                 | Welcome welcome ->
-                    printfn "welcome received %A" welcome
+                    dispatch <| ReceivedWelcome welcome
                     connected receiver sender socket
                         
                 match! mailbox.Receive () with
