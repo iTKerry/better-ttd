@@ -1,16 +1,17 @@
 ﻿namespace BetterTTD.FOAN.Actors
 
-open Akka.FSharp
-open Akka.Actor
-
-open System
-open System.Net.Sockets
-
-open BetterTTD.FOAN.Actors.Messages
-open BetterTTD.FOAN.Actors.MessageTransformer
-open BetterTTD.FOAN.Network.PacketModule
-
 module ActorsModule =
+
+    open Akka.FSharp
+    open Akka.Actor
+
+    open System
+    open System.Net.Sockets
+
+    open BetterTTD.FOAN.Actors.Messages
+    open BetterTTD.FOAN.Actors.MessageTransformer
+    open BetterTTD.FOAN.Actors.PacketTransformer
+    open BetterTTD.FOAN.Network.PacketModule
 
     let createSocket (host : string) (port : int) = 
         let soc = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
