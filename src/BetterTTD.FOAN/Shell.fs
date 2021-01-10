@@ -23,9 +23,7 @@ module Shell =
         { aboutState: About.State
           counterState: Counter.State
           loginState: Login.State
-          
           connectionState: ConnectionState
-          
           actorSystem : ActorSystem }
 
     type Msg =
@@ -35,7 +33,7 @@ module Shell =
         | UiMsg of UiMessage
 
     let init =
-        let aboutState, aboutCmd = About.init
+        let aboutState, _ = About.init
         let counterState = Counter.init
         let loginState = Login.init
         let system = System.create "System" <| Configuration.load ()
@@ -45,9 +43,9 @@ module Shell =
           loginState      = loginState
           connectionState = Disconnected
           actorSystem     = system },
-        Cmd.batch [ aboutCmd ]
+        Cmd.none
 
-    let update (msg: Msg) (state: State): State * Cmd<_> =
+    let update msg state =
         match msg with
         | AboutMsg bpmsg ->
             let aboutState, cmd = About.update bpmsg state.aboutState
