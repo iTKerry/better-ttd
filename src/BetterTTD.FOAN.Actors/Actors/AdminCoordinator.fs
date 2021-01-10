@@ -20,9 +20,10 @@ module AdminCoordinator =
         soc
 
     let adminCoordinator dispatch (mailbox : Actor<_>) =
-        printfn "actor initialized"
+        
         let rec connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
             actor {
+                let! message = mailbox.Receive ()
                 return! connected receiver sender socket
             }
             
@@ -39,8 +40,6 @@ module AdminCoordinator =
                 match! mailbox.Receive () with
                 | Connecting msg -> return! matchConnecting msg
                 | _ -> failwithf "Invalid state operation occured"
-                
-                return! connecting receiver sender socket
             }
             
         and idle () =

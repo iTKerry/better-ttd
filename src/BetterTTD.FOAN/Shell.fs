@@ -26,7 +26,7 @@ module Shell =
           
           connectionState: ConnectionState
           
-          coordinatorRef: IActorRef option }
+          actorSystem : ActorSystem }
 
     type Msg =
         | AboutMsg of About.Msg
@@ -34,24 +34,17 @@ module Shell =
         | LoginMsg of Login.Msg
         | UiMsg of UiMessage
 
-    let actorDispatch (state : State) =
-        let sub dispatch =
-            let system = System.create "System" <| Configuration.load ()
-            let adminRef = spawn system "adminCoordinator" <| adminCoordinator dispatch
-            
-            ()
-        Cmd.ofSub sub
-    
     let init =
         let aboutState, aboutCmd = About.init
         let counterState = Counter.init
         let loginState = Login.init
+        let system = System.create "System" <| Configuration.load ()
         
         { aboutState      = aboutState
           counterState    = counterState
           loginState      = loginState
           connectionState = Disconnected
-          coordinatorRef  = None },
+          actorSystem     = system },
         Cmd.batch [ aboutCmd ]
 
     let update (msg: Msg) (state: State): State * Cmd<_> =
@@ -62,21 +55,17 @@ module Shell =
             Cmd.map AboutMsg cmd
             
         | CounterMsg countermsg ->
-            let counterMsg =
-                Counter.update countermsg state.counterState
+            let counterMsg = Counter.update countermsg state.counterState
             { state with counterState = counterMsg },
             Cmd.none
             
         | LoginMsg loginMsg ->
             match loginMsg with
             | Login.Connect(host, port, pass) ->
-                match state.coordinatorRef with
-                | Some ref -> ref <! (Idle <| Connect(host, pass, port))
-                | None -> printfn "Trying to login but actor system is not created!"
+                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(host, pass, port))
                 state, Cmd.none
             | _ ->
                 let loginState = Login.update loginMsg state.loginState
-                printfn "%A" loginState
                 { state with loginState = loginState },
                 Cmd.none
                 
@@ -85,35 +74,45 @@ module Shell =
             | ReceivedProtocol protocol -> state, Cmd.none
             | ReceivedWelcome  welcome  -> { state with connectionState = Connected }, Cmd.none
 
-    let view (state: State) (dispatch) =
-        match state.connectionState with
-        | Connected -> 
-            DockPanel.create [
-                DockPanel.children [
-                    TabControl.create [
-                        TabControl.tabStripPlacement Dock.Left
-                        TabControl.viewItems [
-                            TabItem.create [
-                                TabItem.header "Counter Sample"
-                                TabItem.content (Counter.view state.counterState (CounterMsg >> dispatch))
-                            ]
-                            TabItem.create [
-                                TabItem.header "About"
-                                TabItem.content (About.view state.aboutState (AboutMsg >> dispatch))
-                            ]
+    let connectedView state dispatch =
+        DockPanel.create [
+            DockPanel.children [
+                TabControl.create [
+                    TabControl.tabStripPlacement Dock.Left
+                    TabControl.viewItems [
+                        TabItem.create [
+                            TabItem.header "Counter Sample"
+                            TabItem.content (Counter.view state.counterState (CounterMsg >> dispatch))
+                        ]
+                        TabItem.create [
+                            TabItem.header "About"
+                            TabItem.content (About.view state.aboutState (AboutMsg >> dispatch))
                         ]
                     ]
                 ]
             ]
-        | Disconnected ->
-            DockPanel.create [
-                DockPanel.children [
-                    (Login.view state.loginState (LoginMsg >> dispatch))
-                ]
-            ]
+        ]
         
+    let disconnectedView state dispatch =
+        DockPanel.create [
+            DockPanel.children [
+                (Login.view state.loginState (LoginMsg >> dispatch))
+            ]
+        ]
+        
+    let view (state: State) (dispatch) =
+        match state.connectionState with
+        | Connected    -> connectedView    state dispatch
+        | Disconnected -> disconnectedView state dispatch
+        
+    let actorDispatch system =
+        let sub dispatch =
+            spawn system "adminCoordinator" <| adminCoordinator dispatch
+            |> ignore
+        Cmd.ofSub sub
+    
     let subscription state =
-        Cmd.batch [ Cmd.map UiMsg (actorDispatch state)]
+        Cmd.batch [ Cmd.map UiMsg (actorDispatch state.actorSystem) ]
         
     type MainWindow() as this =
         inherit HostWindow()
