@@ -58,8 +58,10 @@ module Shell =
         | LoginMsg loginMsg ->
             match loginMsg with
             | Login.Connect ->
-                let st = state.loginState
-                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(st.Host, st.Pass, st.Port))
+                let { Login.Host = host
+                      Login.Pass = pass
+                      Login.Port = port } = state.loginState
+                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(host, pass, port))
                 state, Cmd.none
             | _ -> 
                 let loginState = Login.update loginMsg state.loginState
@@ -113,10 +115,10 @@ module Shell =
     type MainWindow() as this =
         inherit HostWindow()
         do
-            base.Title <- "Full App"
-            base.Width <- 800.0
-            base.Height <- 600.0
-            base.MinWidth <- 800.0
+            base.Title     <- "Full App"
+            base.Width     <- 800.0
+            base.Height    <- 600.0
+            base.MinWidth  <- 800.0
             base.MinHeight <- 600.0
 
             Elmish.Program.mkProgram (fun () -> init) update view
