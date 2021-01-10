@@ -1,4 +1,4 @@
-﻿namespace BetterTTD.FOAN.Actors
+﻿namespace BetterTTD.FOAN.Actors.Transformers
 
 module PacketTransformer =
     

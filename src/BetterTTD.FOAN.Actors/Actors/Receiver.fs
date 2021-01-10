@@ -7,7 +7,7 @@ module Receiver =
     open Akka.FSharp
 
     open BetterTTD.FOAN.Actors.Messages
-    open BetterTTD.FOAN.Actors.PacketTransformer
+    open BetterTTD.FOAN.Actors.Transformers.PacketTransformer
     open BetterTTD.FOAN.Network.PacketModule
 
     let private matchPacket = function

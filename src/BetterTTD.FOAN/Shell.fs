@@ -47,25 +47,23 @@ module Shell =
 
     let update msg state =
         match msg with
-        | AboutMsg bpmsg ->
-            let aboutState, cmd = About.update bpmsg state.aboutState
-            { state with aboutState = aboutState },
-            Cmd.map AboutMsg cmd
+        | AboutMsg aboutMsg ->
+            let aboutState, _ = About.update aboutMsg state.aboutState
+            { state with aboutState = aboutState }, Cmd.none
             
-        | CounterMsg countermsg ->
-            let counterMsg = Counter.update countermsg state.counterState
-            { state with counterState = counterMsg },
-            Cmd.none
+        | CounterMsg counterMsg ->
+            let counterMsg = Counter.update counterMsg state.counterState
+            { state with counterState = counterMsg }, Cmd.none
             
         | LoginMsg loginMsg ->
             match loginMsg with
-            | Login.Connect(host, port, pass) ->
-                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(host, pass, port))
+            | Login.Connect ->
+                let st = state.loginState
+                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(st.Host, st.Pass, st.Port))
                 state, Cmd.none
-            | _ ->
+            | _ -> 
                 let loginState = Login.update loginMsg state.loginState
-                { state with loginState = loginState },
-                Cmd.none
+                { state with loginState = loginState }, Cmd.none
                 
         | UiMsg msg ->
             match msg with

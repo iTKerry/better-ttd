@@ -9,7 +9,7 @@ module AdminCoordinator =
     open System.Net.Sockets
 
     open BetterTTD.FOAN.Actors.Messages
-    open BetterTTD.FOAN.Actors.MessageTransformer
+    open BetterTTD.FOAN.Actors.Transformers.MessageTransformer
     open BetterTTD.FOAN.Actors.Receiver
     open BetterTTD.FOAN.Actors.Sender
     
@@ -23,8 +23,8 @@ module AdminCoordinator =
         
         let rec connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
             actor {
-                let! message = mailbox.Receive ()
-                return! connected receiver sender socket
+                match! mailbox.Receive () with
+                | _ -> return! connected receiver sender socket
             }
             
         and connecting (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =

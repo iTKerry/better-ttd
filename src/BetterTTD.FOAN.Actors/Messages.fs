@@ -10,21 +10,20 @@ module MessagesTypes =
           AdminName    : string
           AdminVersion : string }
 
-     type AdminServerProtocolMessage =
+    type AdminServerProtocolMessage =
         { Version        : byte
           UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency []> }
-    
-    type AdminServerWelcomeMessage = {
-        ServerName      : string
-        NetworkRevision : string
-        IsDedicated     : bool
-        MapName         : string
-        MapSeed         : uint32
-        Landscape       : Landscape
-        CurrentDate     : uint32
-        MapWidth        : int
-        MapHeight       : int
-    }
+
+    type AdminServerWelcomeMessage =
+        { ServerName      : string 
+          NetworkRevision : string 
+          IsDedicated     : bool 
+          MapName         : string 
+          MapSeed         : uint32 
+          Landscape       : Landscape 
+          CurrentDate     : uint32 
+          MapWidth        : int 
+          MapHeight       : int }
 
 module Messages =
     

@@ -2,6 +2,8 @@
 
 module Login =
 
+    open Elmish
+    
     open Avalonia.Controls
     open Avalonia.FuncUI.DSL
     open Avalonia.Layout
@@ -12,9 +14,7 @@ module Login =
           Pass : string }
     
     type Msg =
-        | Connect of host : string *
-                     port : int    *
-                     pass : string
+        | Connect
         | HostChanged of string
         | PortChanged of string
         | PassChanged of string
@@ -24,14 +24,14 @@ module Login =
           Port = 3977
           Pass = "p7gvv" }
         
-    let update (msg: Msg) (state: State) =
+    let update msg state =
         match msg with
         | HostChanged host -> { state with Host = host }
         | PortChanged port -> { state with Port = int port }
         | PassChanged pass -> { state with Pass = pass }
-        | _ -> state
+        | Connect -> state
         
-    let view (state: State) (dispatch) =
+    let view state dispatch =
         Grid.create [
             Grid.children [
                 StackPanel.create [
@@ -55,7 +55,7 @@ module Login =
                             TextBox.onTextChanged (fun text -> dispatch <| PassChanged text)
                         ]
                         Button.create [
-                            Button.onClick (fun _ -> dispatch <| Connect (state.Host, state.Port, state.Pass))
+                            Button.onClick (fun _ -> dispatch <| Connect)
                             Button.content "Connect"
                         ]
                     ]
