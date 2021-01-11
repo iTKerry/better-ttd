@@ -67,14 +67,17 @@ module Shell =
                 let loginState = Login.update loginMsg state.loginState
                 { state with loginState = loginState }, Cmd.none
                 
-        | UiMsg msg ->
-            match msg with
+        | UiMsg uiMsg ->
+            match uiMsg with
             | ReceivedProtocol protocol ->
                 printfn "%A" protocol
                 state, Cmd.none
             | ReceivedWelcome  welcome  ->
                 printfn "%A" welcome
                 { state with connectionState = Connected }, Cmd.none
+            | ConnectionClosed ->
+                select "user/adminCoordinator" state.actorSystem <! PoisonPill.Instance
+                { state with connectionState = Disconnected }, Cmd.none
 
     let connectedView state dispatch =
         DockPanel.create [
@@ -119,7 +122,7 @@ module Shell =
     type MainWindow() as this =
         inherit HostWindow()
         do
-            base.Title     <- "Full App"
+            base.Title     <- "BetterTTD - FOAN"
             base.Width     <- 800.0
             base.Height    <- 600.0
             base.MinWidth  <- 800.0

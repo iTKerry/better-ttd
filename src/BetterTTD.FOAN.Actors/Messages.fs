@@ -32,6 +32,7 @@ module Messages =
     type UiMessage =
         | ReceivedProtocol of AdminServerProtocolMessage
         | ReceivedWelcome  of AdminServerWelcomeMessage
+        | ConnectionClosed
         
     type PacketMessage =
         | AdminServerProtocol of AdminServerProtocolMessage
@@ -56,9 +57,13 @@ module Messages =
     type ConnectedMessage =
         | CaseOne
         | CaseTwo
-        
+    
+    type ErroredOutMessage =
+        | SocketConnectionClosed
+    
     type AdminCoordinatorMessage =
         | Idle       of IdleMessage
         | Connecting of ConnectingMessage
         | Connected  of ConnectedMessage
+        | ErroredOut of ErroredOutMessage
     

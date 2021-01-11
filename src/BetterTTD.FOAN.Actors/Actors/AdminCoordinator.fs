@@ -21,7 +21,20 @@ module AdminCoordinator =
 
     let adminCoordinator dispatch (mailbox : Actor<_>) =
         
-        let rec connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
+        let rec erroredOut () =
+            actor {
+                let matchErroredOut = function
+                | SocketConnectionClosed ->
+                    printfn "ConnectionClosed"
+                    dispatch ConnectionClosed
+                    idle ()
+
+                match! mailbox.Receive () with
+                | ErroredOut msg -> return! matchErroredOut msg
+                | _ -> return! erroredOut ()
+            }
+        
+        and connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
             actor {
                 match! mailbox.Receive () with
                 | _ -> return! connected receiver sender socket
