@@ -34,9 +34,9 @@ module Shell =
 
     let init =
         let aboutState, _ = About.init
-        let counterState = Counter.init
-        let loginState = Login.init
-        let system = System.create "System" <| Configuration.load ()
+        let counterState  = Counter.init
+        let loginState    = Login.init
+        let system        = System.create "System" <| Configuration.load ()
         
         { aboutState      = aboutState
           counterState    = counterState
@@ -61,7 +61,7 @@ module Shell =
                 let { Login.Host = host
                       Login.Pass = pass
                       Login.Port = port } = state.loginState
-                state.actorSystem.ActorSelection "user/adminCoordinator" <! (Idle <| Connect(host, pass, port))
+                select "user/adminCoordinator" state.actorSystem <! (Idle <| Connect(host, pass, port))
                 state, Cmd.none
             | _ -> 
                 let loginState = Login.update loginMsg state.loginState
@@ -69,8 +69,12 @@ module Shell =
                 
         | UiMsg msg ->
             match msg with
-            | ReceivedProtocol protocol -> state, Cmd.none
-            | ReceivedWelcome  welcome  -> { state with connectionState = Connected }, Cmd.none
+            | ReceivedProtocol protocol ->
+                printfn "%A" protocol
+                state, Cmd.none
+            | ReceivedWelcome  welcome  ->
+                printfn "%A" welcome
+                { state with connectionState = Connected }, Cmd.none
 
     let connectedView state dispatch =
         DockPanel.create [

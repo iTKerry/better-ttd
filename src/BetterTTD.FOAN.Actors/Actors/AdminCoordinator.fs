@@ -36,7 +36,7 @@ module AdminCoordinator =
                 | Welcome welcome ->
                     dispatch <| ReceivedWelcome welcome
                     connected receiver sender socket
-                        
+                
                 match! mailbox.Receive () with
                 | Connecting msg -> return! matchConnecting msg
                 | _ -> failwithf "Invalid state operation occured"
