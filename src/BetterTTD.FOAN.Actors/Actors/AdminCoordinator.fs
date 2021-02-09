@@ -21,22 +21,23 @@ module AdminCoordinator =
 
     let adminCoordinator dispatch (mailbox : Actor<_>) =
         
-        let rec erroredOut () =
+        let rec erroredOut errorMsg =
             actor {
-                let matchErroredOut = function
+                match errorMsg with
                 | SocketConnectionClosed ->
-                    printfn "ConnectionClosed"
+                    printfn "SocketConnectionClosed"
                     dispatch ConnectionClosed
-                    idle ()
-
-                match! mailbox.Receive () with
-                | ErroredOut msg -> return! matchErroredOut msg
-                | _ -> return! erroredOut ()
+                    return! idle ()
+                | UnhandledNetworkError ->
+                    printfn "UnhandledNetworkError"
+                    dispatch ConnectionClosed
+                    return! idle ()
             }
         
         and connected (receiver : IActorRef) (sender : IActorRef) (socket : Socket) =
             actor {
                 match! mailbox.Receive () with
+                | ErroredOut error -> return! erroredOut error
                 | _ -> return! connected receiver sender socket
             }
             
@@ -52,6 +53,7 @@ module AdminCoordinator =
                 
                 match! mailbox.Receive () with
                 | Connecting msg -> return! matchConnecting msg
+                | ErroredOut error -> return! erroredOut error
                 | _ -> failwithf "Invalid state operation occured"
             }
             

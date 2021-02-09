@@ -19,14 +19,18 @@ module Receiver =
             actor {
                 let! _ = mailbox.Receive ()
                 
-                if socket.Connected then
+                try
                     let pac = createPacket
                     // TODO: there is an error for socket.Receive on MacOS
                     socket.Receive pac.Buffer |> ignore
                     mailbox.Context.Parent <! (matchPacket <| packetToMsg pac)
-                else
-                    mailbox.Context.Parent <! (ErroredOut SocketConnectionClosed)
-
+                with
+                | :? SocketException as ex ->
+                    match ex.SocketErrorCode with
+                    | SocketError.ConnectionReset ->
+                        mailbox.Context.Parent <! (ErroredOut SocketConnectionClosed)
+                    | _ ->
+                        mailbox.Context.Parent <! (ErroredOut UnhandledNetworkError)
                 return! loop ()
             }
         

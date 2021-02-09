@@ -60,6 +60,7 @@ module Messages =
     
     type ErroredOutMessage =
         | SocketConnectionClosed
+        | UnhandledNetworkError
     
     type AdminCoordinatorMessage =
         | Idle       of IdleMessage
