@@ -9,7 +9,7 @@ module MessagesTypes =
         { Password     : string
           AdminName    : string
           AdminVersion : string }
-
+        
     type AdminServerProtocolMessage =
         { Version        : byte
           UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency []> }
