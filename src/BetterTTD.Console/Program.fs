@@ -5,6 +5,7 @@ open System.IO
 open System.Net
 open System.Net.Sockets
 open System.Threading.Tasks
+open Akka.Actor
 open Akka.FSharp
 open Akka.Dispatch
 open BetterTTD.FOAN.Network.Enums
@@ -26,7 +27,6 @@ module Program =
             |> writeString pass
             |> writeString name
             |> writeString version
-            |> prepareToSend
             
     let akkaTaskRunner (func : Task) =
         ActorTaskScheduler.RunTask
@@ -39,7 +39,8 @@ module Program =
     let receiver (stream : Stream) (mailbox : Actor<_>) =
         let rec loop () =
             actor {
-                let! message = mailbox.Receive ()
+                match! mailbox.Receive () with
+                | _ -> printfn "receive"
                 return! loop ()
             }
             
@@ -48,6 +49,9 @@ module Program =
     type SenderMsg =
         | PacketMsg of Packet
         
+    type ReceiverMsg =
+        | Receive
+        
     type CoordinatorMgs =
         | ConnectMsg of AdminJoinMessage
     
@@ -55,7 +59,9 @@ module Program =
         let rec loop () =
             actor {
                 match! mailbox.Receive () with
-                | PacketMsg pac -> stream.Write (pac.Buffer, 0, int pac.Size)
+                | PacketMsg pac -> 
+                    let { Buffer = buf; Size = size; } = prepareToSend pac
+                    stream.Write (buf, 0, int size)
                 return! loop ()
             }
             
@@ -77,10 +83,16 @@ module Program =
                     tcpClient.Connect (IPAddress.Parse("127.0.0.1"), 3977)
                     let networkStream = tcpClient.GetStream ()
                                 
-                    let senderRef = spawn mailbox.Context.System "sender" <| (sender networkStream) 
-                    let receiverRef = spawn mailbox.Context.System "receiver" <| (receiver networkStream)
+                    let senderRef = spawn mailbox "sender" <| (sender networkStream) 
+                    let receiverRef = spawn mailbox "receiver" <| (receiver networkStream)
                     
-                    senderRef <! (prepareToSend <| msgToPacket (AdminJoin msg))
+                    mailbox.Context.System.Scheduler.ScheduleTellRepeatedly(
+                        TimeSpan.FromMilliseconds (0.),
+                        TimeSpan.FromMilliseconds (100.),
+                        receiverRef,
+                        Receive)
+                    
+                    senderRef <! (PacketMsg <| msgToPacket (AdminJoin msg))
                     
                     return! connecting senderRef receiverRef
             }
