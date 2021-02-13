@@ -9,6 +9,7 @@ open BetterTTD.Console.MessageTransformers
 open BetterTTD.Console.PacketTransformers
 open BetterTTD.Console.ReceiverModule
 open BetterTTD.Console.SenderModule
+open BetterTTD.FOAN.Network.Enums
 
 let connectToStream (ipAddress : IPAddress) (port : int) =
     let tcpClient = new TcpClient ()
@@ -25,11 +26,27 @@ let scheduleMailbox (mailbox : Actor<_>) ref interval msg =
 let coordinator (mailbox : Actor<CoordinatorMessage>) =
     let schedule = scheduleMailbox mailbox
     
-    let rec connecting sender receiver =
+    let rec connected sender receiver =
         actor {
             match! mailbox.Receive () with
-            | ReceivedPacket (AdminServerProtocol protocol) -> printfn "%A" protocol
-            | ReceivedPacket (AdminServerWelcome welcome) -> printfn "%A" welcome
+            | ReceivedPacket (ServerChat chat) -> printfn "%A" chat
+            | _ -> failwith "INVALID CONNECTED STATE CAPTURED"
+            return! connected sender receiver
+        }
+    and connecting sender receiver =
+        actor {
+            match! mailbox.Receive () with
+            | ReceivedPacket (ServerProtocol protocol) ->
+                [ { UpdateType = AdminUpdateType.ADMIN_UPDATE_CHAT
+                    Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC }
+                  { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
+                    Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC } ]
+                |> List.map AdminUpdateFreq
+                |> List.iter (fun msg -> sender <! msg)
+                printfn "%A" protocol
+            | ReceivedPacket (ServerWelcome welcome) ->
+                printfn "%A" welcome
+                return! connected sender receiver
             | _ -> failwith "INVALID CONNECTING STATE CAPTURED"
             return! connecting sender receiver
         }

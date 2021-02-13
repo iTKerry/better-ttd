@@ -186,3 +186,8 @@ module Enums =
         | NETWORK_VEH_BUS                      = 2
         | NETWORK_VEH_PLANE                    = 3
         | NETWORK_VEH_SHIP                     = 4
+        
+    type ChatDestination =
+        | DESTTYPE_BROADCAST                   = 0
+        | DESTTYPE_TEAM                        = 1
+        | DESTTYPE_CLIENT                      = 2

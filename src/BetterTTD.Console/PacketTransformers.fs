@@ -5,11 +5,18 @@ open BetterTTD.FOAN.Network.Enums
 open BetterTTD.FOAN.Network.PacketModule
 open FSharpx.Collections
 
-type AdminServerProtocolMessage =
-    { Version        : byte
-      UpdateSettings : Map<AdminUpdateType, AdminUpdateFrequency []> }
+type ServerChatMessage =
+    { NetworkAction   : NetworkAction
+      ChatDestination : ChatDestination
+      ClientId        : uint32
+      Message         : string
+      Data            : uint64 }
 
-type AdminServerWelcomeMessage =
+type ServerProtocolMessage =
+    { Version         : byte
+      UpdateSettings  : Map<AdminUpdateType, AdminUpdateFrequency []> }
+
+type ServerWelcomeMessage =
     { ServerName      : string 
       NetworkRevision : string 
       IsDedicated     : bool 
@@ -20,9 +27,23 @@ type AdminServerWelcomeMessage =
       MapWidth        : int 
       MapHeight       : int }
 
+type ServerClientJoinMessage =
+    { ClientId        : uint32 }
+
+type ServerClientQuitMessage =
+    { ClientId        : uint32 }
+
+type ServerClientErrorMessage =
+    { ClientId        : uint32 }
+
 type PacketMessage =
-    | AdminServerProtocol of AdminServerProtocolMessage
-    | AdminServerWelcome  of AdminServerWelcomeMessage
+    | ServerProtocol     of ServerProtocolMessage
+    | ServerWelcome      of ServerWelcomeMessage
+    | ServerChat         of ServerChatMessage
+    | ServerClientJoin   of ServerClientJoinMessage
+    | ServerClientQuit   of ServerClientQuitMessage
+    | ServerClientError  of ServerClientErrorMessage
+    
     
 let readServerProtocol packet =
     let (version, packet) = readByte packet
@@ -47,7 +68,8 @@ let readServerProtocol packet =
             dict, pac
             
     let (dict, _) = readFreq Map.empty packet
-    AdminServerProtocol
+    
+    ServerProtocol
         { Version = version
           UpdateSettings = dict }
 
@@ -62,7 +84,8 @@ let readServerWelcome packet =
     let (currentDate, pac) = readU32 pac
     let (mapWidth, pac) = readU16 pac
     let (mapHeight, _) = readU16 pac
-    AdminServerWelcome
+    
+    ServerWelcome
         { ServerName = serverName
           NetworkRevision = networkRevision
           IsDedicated = isDedicated
@@ -73,9 +96,44 @@ let readServerWelcome packet =
           MapWidth = int mapWidth
           MapHeight = int mapHeight }
 
+let readServerChat packet =
+    let (act, pac) = readByte packet
+    let action = enum<NetworkAction>(int act)
+    let (dest, pac) = readByte pac
+    let destination = enum<ChatDestination>(int dest)
+    
+    let (clientId, pac) = readU32 pac
+    let (message, pac) = readString pac
+    let (data, _) = readU64 pac
+    
+    ServerChat
+        { NetworkAction = action
+          ChatDestination = destination
+          ClientId = clientId
+          Message = message
+          Data = data }
+    
+let readServerClientJoin packet =
+    let (clientId, _) = readU32 packet
+    ServerClientJoin { ClientId = clientId }
+
+let readServerClientQuit packet =
+    let (clientId, _) = readU32 packet
+    ServerClientQuit { ClientId = clientId }
+
+let readServerClientError packet =
+    let (clientId, _) = readU32 packet
+    ServerClientError { ClientId = clientId }
+
 let packetToMsg packet =
-    let (x, pac) = readByte packet
-    match enum<PacketType>(int x) with
-    | PacketType.ADMIN_PACKET_SERVER_PROTOCOL -> readServerProtocol pac
-    | PacketType.ADMIN_PACKET_SERVER_WELCOME  -> readServerWelcome pac
-    | _ -> failwithf "PACKET TRANSFORMER ERROR."
+    let (typeVal, pac) = readByte packet
+    match enum<PacketType>(int typeVal) with
+    | PacketType.ADMIN_PACKET_SERVER_PROTOCOL      -> readServerProtocol    pac
+    | PacketType.ADMIN_PACKET_SERVER_WELCOME       -> readServerWelcome     pac
+    | PacketType.ADMIN_PACKET_SERVER_CHAT          -> readServerChat        pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_JOIN   -> readServerClientJoin  pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_INFO   -> failwith ""
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_UPDATE -> failwith ""
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_QUIT   -> readServerClientQuit  pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_ERROR  -> readServerClientError pac
+    | _ -> failwithf "PACKET TRANSFORMER ERROR: UNSUPPORTED TYPE - %d" typeVal
