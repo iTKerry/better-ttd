@@ -4,17 +4,11 @@ open System
 open System.Net
 open System.Net.Sockets
 open Akka.FSharp
+open BetterTTD.Console.ActorMessagesModule
 open BetterTTD.Console.MessageTransformers
+open BetterTTD.Console.PacketTransformers
 open BetterTTD.Console.ReceiverModule
 open BetterTTD.Console.SenderModule
-
-type ConnectMessage = 
-    { Address      : IPAddress
-      Port         : int
-      Password     : string }
-
-type CoordinatorMgs =
-    | Connect of ConnectMessage
 
 let connectToStream (ipAddress : IPAddress) (port : int) =
     let tcpClient = new TcpClient ()
@@ -28,13 +22,15 @@ let scheduleMailbox (mailbox : Actor<_>) ref interval msg =
         ref,
         msg)
 
-let coordinator (mailbox : Actor<_>) =
+let coordinator (mailbox : Actor<CoordinatorMessage>) =
     let schedule = scheduleMailbox mailbox
     
     let rec connecting sender receiver =
         actor {
             match! mailbox.Receive () with
-            | _ -> printfn "received something"
+            | ReceivedPacket (AdminServerProtocol protocol) -> printfn "%A" protocol
+            | ReceivedPacket (AdminServerWelcome welcome) -> printfn "%A" welcome
+            | _ -> failwith "INVALID CONNECTING STATE CAPTURED"
             return! connecting sender receiver
         }
         
@@ -51,6 +47,7 @@ let coordinator (mailbox : Actor<_>) =
                 senderRef <! AdminJoin {Password = pass; AdminName = "BetterTTD"; AdminVersion = "1.0"}
                 
                 return! connecting senderRef receiverRef
+            | _ -> failwith "INVALID IDLE STATE CAPTURED"
         }
 
     idle ()

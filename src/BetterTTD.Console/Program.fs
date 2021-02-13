@@ -4,6 +4,7 @@ open System
 open System.Net
 open Akka.FSharp
 open BetterTTD.Console.CoordinatorModule
+open BetterTTD.Console.ActorMessagesModule
 
 module Program =
      

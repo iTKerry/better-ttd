@@ -3,6 +3,7 @@
 open System
 open System.IO
 open Akka.FSharp
+open BetterTTD.Console.ActorMessagesModule
 open BetterTTD.FOAN.Network.PacketModule
 open BetterTTD.Console.PacketTransformers
 open FSharpx.Collections
@@ -33,17 +34,14 @@ let waitForPacket (stream : Stream) =
     let content = read stream (int size - 2)
     createPacket sizeBuf content
 
-type ReceiverMsg =
-    | Receive
-    
-let receiver (stream : Stream) (mailbox : Actor<_>) =
+let receiver (stream : Stream) (mailbox : Actor<ReceiverMessage>) =
     let rec loop () =
         actor {
             match! mailbox.Receive () with
             | _ ->
                 let pac = waitForPacket stream
                 let msg = packetToMsg pac
-                printfn "%A" msg
+                mailbox.Context.Parent <! ReceivedPacket msg
             return! loop ()
         }
         

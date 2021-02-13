@@ -8,6 +8,7 @@
     <ItemGroup>
         <Compile Include="PacketTransformers.fs" />
         <Compile Include="MessageTransformers.fs" />
+        <Compile Include="ActorMessages.fs" />
         <Compile Include="Receiver.fs" />
         <Compile Include="Sender.fs" />
         <Compile Include="Coordinator.fs" />
