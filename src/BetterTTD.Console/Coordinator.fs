@@ -41,6 +41,9 @@ let coordinator (mailbox : Actor<CoordinatorMessage>) =
             | ReceivedPacket (ServerClientUpdate client)  -> printfn "update%A" client
             | ReceivedPacket (ServerClientError client)   -> printfn "error %A" client
             | ReceivedPacket (ServerClientQuit client)    -> printfn "quit %A" client
+            | PollClients ->
+                sender <! AdminPoll { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
+                                      Data = UInt32.MaxValue }
             | _ -> failwith "INVALID CONNECTED STATE CAPTURED"
             return! connected sender receiver
         }

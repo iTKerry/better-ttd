@@ -18,4 +18,8 @@ module Program =
         
         Console.Read() |> ignore
         
+        coordinatorRef <! PollClients
+        
+        Console.Read() |> ignore
+        
         0
