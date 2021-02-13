@@ -11,6 +11,12 @@ open BetterTTD.Console.ReceiverModule
 open BetterTTD.Console.SenderModule
 open BetterTTD.FOAN.Network.Enums
 
+let defaultUpdateFrequencies =
+    [ { UpdateType = AdminUpdateType.ADMIN_UPDATE_CHAT
+        Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC }
+      { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
+        Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC } ]
+    
 let connectToStream (ipAddress : IPAddress) (port : int) =
     let tcpClient = new TcpClient ()
     tcpClient.Connect (ipAddress, port)
@@ -29,18 +35,21 @@ let coordinator (mailbox : Actor<CoordinatorMessage>) =
     let rec connected sender receiver =
         actor {
             match! mailbox.Receive () with
-            | ReceivedPacket (ServerChat chat) -> printfn "%A" chat
+            | ReceivedPacket (ServerChat chat)            -> printfn "chat %A" chat
+            | ReceivedPacket (ServerClientJoin client)    -> printfn "join %A" client
+            | ReceivedPacket (ServerClientInfo client)    -> printfn "info %A" client
+            | ReceivedPacket (ServerClientUpdate client)  -> printfn "update%A" client
+            | ReceivedPacket (ServerClientError client)   -> printfn "error %A" client
+            | ReceivedPacket (ServerClientQuit client)    -> printfn "quit %A" client
             | _ -> failwith "INVALID CONNECTED STATE CAPTURED"
             return! connected sender receiver
         }
+        
     and connecting sender receiver =
         actor {
             match! mailbox.Receive () with
             | ReceivedPacket (ServerProtocol protocol) ->
-                [ { UpdateType = AdminUpdateType.ADMIN_UPDATE_CHAT
-                    Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC }
-                  { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
-                    Frequency  = AdminUpdateFrequency.ADMIN_FREQUENCY_AUTOMATIC } ]
+                defaultUpdateFrequencies
                 |> List.map AdminUpdateFreq
                 |> List.iter (fun msg -> sender <! msg)
                 printfn "%A" protocol

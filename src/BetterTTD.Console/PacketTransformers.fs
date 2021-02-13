@@ -30,6 +30,19 @@ type ServerWelcomeMessage =
 type ServerClientJoinMessage =
     { ClientId        : uint32 }
 
+type ServerClientInfoMessage =
+    { ClientId        : uint32
+      Address         : string
+      Name            : string
+      Language        : NetworkLanguage
+      JoinDate        : uint32
+      CompanyId       : byte }
+
+type ServerClientUpdateMessage =
+    { ClientId        : uint32
+      Name            : string
+      CompanyId       : byte }
+
 type ServerClientQuitMessage =
     { ClientId        : uint32 }
 
@@ -41,6 +54,8 @@ type PacketMessage =
     | ServerWelcome      of ServerWelcomeMessage
     | ServerChat         of ServerChatMessage
     | ServerClientJoin   of ServerClientJoinMessage
+    | ServerClientInfo   of ServerClientInfoMessage
+    | ServerClientUpdate of ServerClientUpdateMessage
     | ServerClientQuit   of ServerClientQuitMessage
     | ServerClientError  of ServerClientErrorMessage
     
@@ -79,8 +94,7 @@ let readServerWelcome packet =
     let (isDedicated, pac) = readBool pac
     let (mapName, pac) = readString pac
     let (mapSeed, pac) = readU32 pac
-    let (x, pac) = readByte pac
-    let landscape = enum<Landscape>(int x)
+    let (landscape, pac) = readByte pac
     let (currentDate, pac) = readU32 pac
     let (mapWidth, pac) = readU16 pac
     let (mapHeight, _) = readU16 pac
@@ -91,7 +105,7 @@ let readServerWelcome packet =
           IsDedicated = isDedicated
           MapName = mapName
           MapSeed = mapSeed
-          Landscape = landscape
+          Landscape = enum<Landscape>(int landscape)
           CurrentDate = currentDate
           MapWidth = int mapWidth
           MapHeight = int mapHeight }
@@ -117,6 +131,29 @@ let readServerClientJoin packet =
     let (clientId, _) = readU32 packet
     ServerClientJoin { ClientId = clientId }
 
+let readServerClientInfo packet =
+    let (clientId, pac) = readU32 packet
+    let (address, pac) = readString pac
+    let (name, pac) = readString pac
+    let (lang, pac) = readByte pac
+    let (joinDate, pac) = readU32 pac
+    let (companyId, _) = readByte pac
+    ServerClientInfo
+        { ClientId = clientId
+          Address = address
+          Name = name
+          Language = enum<NetworkLanguage>(int lang)
+          JoinDate = joinDate
+          CompanyId = companyId }
+
+let readServerClientUpdate packet =
+    let (clientId, pac) = readU32 packet
+    let (name, pac) = readString pac
+    let (companyId, _) = readByte pac
+    ServerClientUpdate { ClientId = clientId
+                         Name = name
+                         CompanyId = companyId }
+
 let readServerClientQuit packet =
     let (clientId, _) = readU32 packet
     ServerClientQuit { ClientId = clientId }
@@ -128,12 +165,12 @@ let readServerClientError packet =
 let packetToMsg packet =
     let (typeVal, pac) = readByte packet
     match enum<PacketType>(int typeVal) with
-    | PacketType.ADMIN_PACKET_SERVER_PROTOCOL      -> readServerProtocol    pac
-    | PacketType.ADMIN_PACKET_SERVER_WELCOME       -> readServerWelcome     pac
-    | PacketType.ADMIN_PACKET_SERVER_CHAT          -> readServerChat        pac
-    | PacketType.ADMIN_PACKET_SERVER_CLIENT_JOIN   -> readServerClientJoin  pac
-    | PacketType.ADMIN_PACKET_SERVER_CLIENT_INFO   -> failwith ""
-    | PacketType.ADMIN_PACKET_SERVER_CLIENT_UPDATE -> failwith ""
-    | PacketType.ADMIN_PACKET_SERVER_CLIENT_QUIT   -> readServerClientQuit  pac
-    | PacketType.ADMIN_PACKET_SERVER_CLIENT_ERROR  -> readServerClientError pac
+    | PacketType.ADMIN_PACKET_SERVER_PROTOCOL      -> readServerProtocol     pac
+    | PacketType.ADMIN_PACKET_SERVER_WELCOME       -> readServerWelcome      pac
+    | PacketType.ADMIN_PACKET_SERVER_CHAT          -> readServerChat         pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_JOIN   -> readServerClientJoin   pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_INFO   -> readServerClientInfo   pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_UPDATE -> readServerClientUpdate pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_QUIT   -> readServerClientQuit   pac
+    | PacketType.ADMIN_PACKET_SERVER_CLIENT_ERROR  -> readServerClientError  pac
     | _ -> failwithf "PACKET TRANSFORMER ERROR: UNSUPPORTED TYPE - %d" typeVal
