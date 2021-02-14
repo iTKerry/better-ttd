@@ -41,7 +41,7 @@ let receiver (stream : Stream) (mailbox : Actor<ReceiverMessage>) =
             | _ ->
                 let pac = waitForPacket stream
                 let msg = packetToMsg pac
-                mailbox.Context.Parent <! ReceivedPacket msg
+                mailbox.Context.Parent <! PacketReceived msg
             return! loop ()
         }
         

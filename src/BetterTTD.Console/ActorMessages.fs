@@ -10,7 +10,10 @@ type ConnectMessage =
       Port         : int
       Password     : string }
 
+type PollClientMessage =
+    { ClientID : uint32 }
+
 type CoordinatorMessage =
     | Connect of ConnectMessage
-    | ReceivedPacket of PacketMessage
-    | PollClients
+    | PacketReceived of PacketMessage
+    | PollClient of PollClientMessage 
