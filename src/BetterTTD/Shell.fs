@@ -1,6 +1,7 @@
 ﻿module BetterTTD.Shell
 
 open System
+open System.Reactive.Linq
 open BetterTTD.OpenTTDModule
 open Elmish
 open Avalonia.Controls
@@ -11,7 +12,7 @@ open Avalonia.FuncUI.DSL
 
 type Model =
     { OpenTTD : OpenTTD option
-      Login : Login.Model }
+      Login   : Login.Model }
 
 type Msg =
     | LoginMsg of Login.Msg
@@ -25,17 +26,17 @@ let update (msg : Msg) (model : Model) =
     match msg with
     | LoginMsg loginMsg ->
         let loginModel, loginCmd, extraMsg = Login.update loginMsg model.Login
-        
         let newModel =
             match extraMsg with
             | Login.ExternalMsg.NoOp -> model
-            | Login.ExternalMsg.Connected ottd -> { model with OpenTTD = Some ottd }
-        
+            | Login.ExternalMsg.Connected ottd ->
+                ottd.OnChat.Publish |> Observable.subscribe (printfn "%A") |> ignore
+                { model with OpenTTD = Some ottd }
         { newModel with Login = loginModel }, Cmd.map LoginMsg loginCmd
     | PollClient ->
         match model.OpenTTD with
         | Some ottd -> ottd.AskPollClient UInt32.MaxValue
-        | None -> ()
+        | None -> failwith "Invalid operation"
         model, Cmd.none
 
 let view (model : Model) dispatch =

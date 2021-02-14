@@ -13,35 +13,47 @@ type ServerInfo =
       Port    : int }
 
 type OpenTTD (serverInfo : ServerInfo) =
-    let system =
-        System.create "tempServName" <| Configuration.load ()
-        
+    let onChat = Event<ServerChatMessage>()
+    let onClientJoin = Event<ServerClientJoinMessage>()
+    let onClientInfo = Event<ServerClientInfoMessage>()
+    let onClientUpdate = Event<ServerClientUpdateMessage>()
+    let onClientError = Event<ServerClientErrorMessage>()
+    let onClientQuit = Event<ServerClientQuitMessage>()
+
     let subscriber =
         { new IServerSubscriber with
             member __.OnPacketReceived pac =
                 match pac with
-                | ServerChat chat            -> printfn "chat %A" chat
-                | ServerClientJoin client    -> printfn "join %A" client
-                | ServerClientInfo client    -> printfn "info %A" client
-                | ServerClientUpdate client  -> printfn "update %A" client
-                | ServerClientError client   -> printfn "error %A" client
-                | ServerClientQuit client    -> printfn "quit %A" client
+                | ServerChat         chat    -> onChat.Trigger         chat
+                | ServerClientJoin   client  -> onClientJoin.Trigger   client
+                | ServerClientInfo   client  -> onClientInfo.Trigger   client
+                | ServerClientUpdate client  -> onClientUpdate.Trigger client
+                | ServerClientError  client  -> onClientError.Trigger  client
+                | ServerClientQuit   client  -> onClientQuit.Trigger   client
                 | _ -> printfn "other %A" pac }
     
     let notifier =
+        let system = System.create "tempServName" <| Configuration.load ()
         let coordinatorRef = spawn system "coordinator" <| coordinator subscriber
         { new IServerNotifier with
             member __.SendConnect msg =
                 coordinatorRef <! Connect msg
             member __.SendPollClient msg =
                 coordinatorRef <! PollClient msg }
-        
+    
+    member this.OnChat = onChat
+    member this.OnClientJoin = onClientJoin
+    member this.OnClientInfo = onClientInfo
+    member this.OnClientUpdate = onClientUpdate
+    member this.OnClientError = onClientError
+    member this.OnClientQuit = onClientQuit
+    
     member this.TellConnect (pass : string) =
-        let msg = { Address = serverInfo.Address
-                    Port = serverInfo.Port
-                    Password = pass }
-        notifier.SendConnect msg
+        notifier.SendConnect
+            { Address  = serverInfo.Address
+              Port     = serverInfo.Port
+              Password = pass }
         
     member this.AskPollClient (clientId : uint32) =
-        let msg = { ClientID = clientId }
-        notifier.SendPollClient msg
+        notifier.SendPollClient
+            { ClientID = clientId }
