@@ -1,7 +1,7 @@
-﻿module BetterTTD.Console.ActorMessagesModule
+﻿module BetterTTD.ActorMessagesModule
 
 open System.Net
-open BetterTTD.Console.PacketTransformers
+open BetterTTD.PacketTransformers
 
 type ReceiverMessage = Receive
     

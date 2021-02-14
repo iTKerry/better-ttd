@@ -1,11 +1,11 @@
-﻿module BetterTTD.Console.ReceiverModule
+﻿module BetterTTD.ReceiverModule
 
 open System
 open System.IO
 open Akka.FSharp
-open BetterTTD.Console.ActorMessagesModule
+open BetterTTD.ActorMessagesModule
 open BetterTTD.FOAN.Network.PacketModule
-open BetterTTD.Console.PacketTransformers
+open BetterTTD.PacketTransformers
 open FSharpx.Collections
 
 let read (stream : Stream) (size : int) =

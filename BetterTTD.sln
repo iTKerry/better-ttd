@@ -16,7 +16,7 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BetterTTD.FOAN.Network", "s
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BetterTTD.FOAN.Actors", "src\BetterTTD.FOAN.Actors\BetterTTD.FOAN.Actors.fsproj", "{98BC0833-7AE7-462B-9AFC-58D9B5B09CDA}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BetterTTD.Console", "src\BetterTTD.Console\BetterTTD.Console.fsproj", "{533444B5-8984-412E-BD08-935DE724D638}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BetterTTD", "src\BetterTTD\BetterTTD.fsproj", "{533444B5-8984-412E-BD08-935DE724D638}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

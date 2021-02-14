@@ -1,4 +1,4 @@
-﻿module BetterTTD.Console.MessageTransformers
+﻿module BetterTTD.MessageTransformers
 
 open BetterTTD.FOAN.Network.Enums
 open BetterTTD.FOAN.Network.PacketModule

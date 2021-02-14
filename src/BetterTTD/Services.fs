@@ -1,7 +1,7 @@
-﻿module BetterTTD.Console.ServicesModule
+﻿module BetterTTD.ServicesModule
 
-open BetterTTD.Console.ActorMessagesModule
-open BetterTTD.Console.PacketTransformers
+open BetterTTD.ActorMessagesModule
+open BetterTTD.PacketTransformers
 
 type IServerSubscriber =
     abstract OnPacketReceived : PacketMessage     -> unit

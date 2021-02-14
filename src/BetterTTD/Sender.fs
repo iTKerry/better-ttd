@@ -1,8 +1,8 @@
-﻿module BetterTTD.Console.SenderModule
+﻿module BetterTTD.SenderModule
 
 open System.IO
 open Akka.FSharp
-open BetterTTD.Console.MessageTransformers
+open BetterTTD.MessageTransformers
 open BetterTTD.FOAN.Network.PacketModule
  
 let sender (stream : Stream) (mailbox : Actor<AdminMessage>) =

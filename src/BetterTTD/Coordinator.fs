@@ -1,15 +1,15 @@
-﻿module BetterTTD.Console.CoordinatorModule
+﻿module BetterTTD.CoordinatorModule
 
 open System
 open System.Net
 open System.Net.Sockets
 open Akka.FSharp
-open BetterTTD.Console.ActorMessagesModule
-open BetterTTD.Console.MessageTransformers
-open BetterTTD.Console.PacketTransformers
-open BetterTTD.Console.ReceiverModule
-open BetterTTD.Console.SenderModule
-open BetterTTD.Console.ServicesModule
+open BetterTTD.ActorMessagesModule
+open BetterTTD.MessageTransformers
+open BetterTTD.PacketTransformers
+open BetterTTD.ReceiverModule
+open BetterTTD.SenderModule
+open BetterTTD.ServicesModule
 open BetterTTD.FOAN.Network.Enums
 
 let defaultUpdateFrequencies =
@@ -40,7 +40,7 @@ let coordinator (subscriber : IServerSubscriber) (mailbox : Actor<CoordinatorMes
             match! mailbox.Receive () with
             | PacketReceived pac -> subscriber.OnPacketReceived pac
             | PollClient { ClientID = clientId } ->
-                sender <! AdminPoll { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
+                sender <! AdminPoll { UpdateType = AdminUpdateType.ADMIN_UPDATE_COMPANY_INFO
                                       Data       = clientId }
             | _ -> failwith "INVALID CONNECTED STATE CAPTURED"
             return! connected sender receiver
