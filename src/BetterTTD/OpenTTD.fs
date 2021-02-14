@@ -13,6 +13,9 @@ type ServerInfo =
       Port    : int }
 
 type OpenTTD (serverInfo : ServerInfo) =
+    let onUpdate = Event<PacketMessage>()
+    let onProtocol = Event<ServerProtocolMessage>()
+    let onWelcome = Event<ServerWelcomeMessage>()
     let onChat = Event<ServerChatMessage>()
     let onClientJoin = Event<ServerClientJoinMessage>()
     let onClientInfo = Event<ServerClientInfoMessage>()
@@ -23,14 +26,16 @@ type OpenTTD (serverInfo : ServerInfo) =
     let subscriber =
         { new IServerSubscriber with
             member __.OnPacketReceived pac =
+                onUpdate.Trigger pac
                 match pac with
-                | ServerChat         chat    -> onChat.Trigger         chat
-                | ServerClientJoin   client  -> onClientJoin.Trigger   client
-                | ServerClientInfo   client  -> onClientInfo.Trigger   client
-                | ServerClientUpdate client  -> onClientUpdate.Trigger client
-                | ServerClientError  client  -> onClientError.Trigger  client
-                | ServerClientQuit   client  -> onClientQuit.Trigger   client
-                | _ -> printfn "other %A" pac }
+                | ServerProtocol     protocol -> onProtocol.Trigger     protocol
+                | ServerWelcome      welcome  -> onWelcome.Trigger      welcome
+                | ServerChat         chat     -> onChat.Trigger         chat
+                | ServerClientJoin   client   -> onClientJoin.Trigger   client
+                | ServerClientInfo   client   -> onClientInfo.Trigger   client
+                | ServerClientUpdate client   -> onClientUpdate.Trigger client
+                | ServerClientError  client   -> onClientError.Trigger  client
+                | ServerClientQuit   client   -> onClientQuit.Trigger   client }
     
     let notifier =
         let system = System.create "tempServName" <| Configuration.load ()
@@ -41,6 +46,9 @@ type OpenTTD (serverInfo : ServerInfo) =
             member __.SendPollClient msg =
                 coordinatorRef <! PollClient msg }
     
+    member this.OnUpdate = onUpdate
+    member this.OnProtocol = onProtocol
+    member this.OnWelcome = onWelcome
     member this.OnChat = onChat
     member this.OnClientJoin = onClientJoin
     member this.OnClientInfo = onClientInfo

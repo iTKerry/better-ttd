@@ -30,8 +30,4 @@
         <PackageReference Include="JaggerJo.Avalonia.FuncUI.Elmish" Version="0.4.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\BetterTTD.Network\BetterTTD.Network.fsproj" />
-    </ItemGroup>
-
 </Project>

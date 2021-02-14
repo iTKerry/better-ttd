@@ -5,6 +5,7 @@ open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open BetterTTD.OpenTTDModule
+open BetterTTD.PacketTransformers
 open Elmish
 
 type Model =
@@ -14,21 +15,23 @@ type Model =
 
 type ExternalMsg =
     | NoOp
-    | Connected of OpenTTD
+    | Connected of OpenTTD * ServerWelcomeMessage
     
 type Msg =
     | HostChanged of string
     | PortChanged of string
     | PassChanged of string
     | Connect
-    | ConnectCompleted of OpenTTD
+    | ConnectCompleted of OpenTTD * ServerWelcomeMessage
     | ConnectFailed
 
 let connect (model : Model) dispatch =
     let serverInfo = { Address = IPAddress.Parse (model.Host); Port = model.Port }
     let ottd = OpenTTD(serverInfo)
     ottd.TellConnect model.Pass
-    dispatch (ConnectCompleted ottd)
+    ottd.OnWelcome.Publish
+    |> Observable.subscribe (fun msg -> dispatch <| ConnectCompleted (ottd, msg))
+    |> ignore
 
 let init () =
     { Host = "127.0.0.1"
@@ -42,7 +45,7 @@ let update msg model =
     | PortChanged port -> {model with Port = int port}, Cmd.none, NoOp
     | PassChanged pass -> {model with Pass = pass}, Cmd.none, NoOp 
     | Connect -> model, Cmd.ofSub (connect model), NoOp
-    | ConnectCompleted ottd -> model, Cmd.none, Connected ottd
+    | ConnectCompleted (ottd, welcomeMsg) -> model, Cmd.none, Connected (ottd, welcomeMsg)
     | ConnectFailed -> model, Cmd.none, NoOp
     
 
@@ -70,7 +73,7 @@ let view state dispatch =
                         TextBox.onTextChanged (fun text -> dispatch <| PassChanged text)
                     ]
                     Button.create [
-                        Button.onClick (fun _ -> dispatch <| Connect)
+                        Button.onClick (fun _ -> dispatch Connect)
                         Button.content "Connect"
                     ]
                 ]
