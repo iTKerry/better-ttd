@@ -1,5 +1,6 @@
 ﻿module BetterTTD.Shell
 
+open System
 open BetterTTD.OpenTTDModule
 open Elmish
 open Avalonia.Controls
@@ -9,27 +10,47 @@ open Avalonia.FuncUI.Elmish
 open Avalonia.FuncUI.DSL
 
 type Model =
-    { OpenTTD : OpenTTD option }
+    { OpenTTD : OpenTTD option
+      Login : Login.Model }
 
 type Msg =
-    | Msg
+    | LoginMsg of Login.Msg
+    | PollClient
 
 let init =
-    { OpenTTD = None }, Cmd.none
+    let login, loginCmd = Login.init ()
+    { OpenTTD = None; Login = login }, Cmd.batch [ Cmd.map LoginMsg loginCmd ]
 
-let update msg model =
+let update (msg : Msg) (model : Model) =
     match msg with
-    | Msg -> model, Cmd.none
+    | LoginMsg loginMsg ->
+        let loginModel, loginCmd, extraMsg = Login.update loginMsg model.Login
+        
+        let newModel =
+            match extraMsg with
+            | Login.ExternalMsg.NoOp -> model
+            | Login.ExternalMsg.Connected ottd -> { model with OpenTTD = Some ottd }
+        
+        { newModel with Login = loginModel }, Cmd.map LoginMsg loginCmd
+    | PollClient ->
+        match model.OpenTTD with
+        | Some ottd -> ottd.AskPollClient UInt32.MaxValue
+        | None -> ()
+        model, Cmd.none
 
-let view model dispatch =
-    DockPanel.create [
-        DockPanel.children [
-            TextBlock.create [
-                TextBlock.text "Temp"
-            ]
-        ]
-    ]
-
+let view (model : Model) dispatch =
+    match model.OpenTTD with
+    | None -> (Login.view model.Login (LoginMsg >> dispatch))
+    | Some _ ->
+         Grid.create [
+             Grid.children [
+                 Button.create [
+                     Button.onClick (fun _ -> dispatch <| PollClient)
+                     Button.content "Poll"
+                 ]
+             ]
+         ]
+        
 type MainWindow() as this =
     inherit HostWindow()
     do

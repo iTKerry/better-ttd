@@ -1,4 +1,4 @@
-﻿namespace Temp
+﻿namespace BetterTTD
 
 open Avalonia
 open Avalonia.Controls.ApplicationLifetimes

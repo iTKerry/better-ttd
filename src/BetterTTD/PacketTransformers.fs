@@ -1,8 +1,8 @@
 ﻿module BetterTTD.PacketTransformers
 
 open System
-open BetterTTD.FOAN.Network.Enums
-open BetterTTD.FOAN.Network.PacketModule
+open BetterTTD.Network.Enums
+open BetterTTD.Network.PacketModule
 open FSharpx.Collections
 
 type ServerChatMessage =

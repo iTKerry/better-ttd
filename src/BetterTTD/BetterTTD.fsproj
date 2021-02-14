@@ -6,6 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Enums.fs" />
+        <Compile Include="Packet.fs" />
         <Compile Include="PacketTransformers.fs" />
         <Compile Include="MessageTransformers.fs" />
         <Compile Include="ActorMessages.fs" />
@@ -14,6 +16,7 @@
         <Compile Include="Sender.fs" />
         <Compile Include="Coordinator.fs" />
         <Compile Include="OpenTTD.fs" />
+        <Compile Include="Login.fs" />
         <Compile Include="Shell.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
@@ -28,7 +31,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\BetterTTD.FOAN.Network\BetterTTD.FOAN.Network.fsproj" />
+      <ProjectReference Include="..\BetterTTD.Network\BetterTTD.Network.fsproj" />
     </ItemGroup>
 
 </Project>

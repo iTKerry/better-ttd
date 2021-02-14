@@ -10,7 +10,7 @@ open BetterTTD.PacketTransformers
 open BetterTTD.ReceiverModule
 open BetterTTD.SenderModule
 open BetterTTD.ServicesModule
-open BetterTTD.FOAN.Network.Enums
+open BetterTTD.Network.Enums
 
 let defaultUpdateFrequencies =
     [ { UpdateType = AdminUpdateType.ADMIN_UPDATE_CHAT
@@ -40,7 +40,7 @@ let coordinator (subscriber : IServerSubscriber) (mailbox : Actor<CoordinatorMes
             match! mailbox.Receive () with
             | PacketReceived pac -> subscriber.OnPacketReceived pac
             | PollClient { ClientID = clientId } ->
-                sender <! AdminPoll { UpdateType = AdminUpdateType.ADMIN_UPDATE_COMPANY_INFO
+                sender <! AdminPoll { UpdateType = AdminUpdateType.ADMIN_UPDATE_CLIENT_INFO
                                       Data       = clientId }
             | _ -> failwith "INVALID CONNECTED STATE CAPTURED"
             return! connected sender receiver

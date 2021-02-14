@@ -3,7 +3,7 @@
 open System.IO
 open Akka.FSharp
 open BetterTTD.MessageTransformers
-open BetterTTD.FOAN.Network.PacketModule
+open BetterTTD.Network.PacketModule
  
 let sender (stream : Stream) (mailbox : Actor<AdminMessage>) =
     let rec loop () =

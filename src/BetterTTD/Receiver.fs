@@ -4,7 +4,7 @@ open System
 open System.IO
 open Akka.FSharp
 open BetterTTD.ActorMessagesModule
-open BetterTTD.FOAN.Network.PacketModule
+open BetterTTD.Network.PacketModule
 open BetterTTD.PacketTransformers
 open FSharpx.Collections
 
