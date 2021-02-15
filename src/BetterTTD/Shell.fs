@@ -81,7 +81,9 @@ type MainWindow() as this =
         base.Height    <- 600.0
         base.MinWidth  <- 800.0
         base.MinHeight <- 600.0
+        base.TransparencyLevelHint <- WindowTransparencyLevel.None
 
         Elmish.Program.mkProgram (fun () -> init) update view
         |> Program.withHost this
+        |> Program.withConsoleTrace
         |> Program.run

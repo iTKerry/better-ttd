@@ -4,11 +4,21 @@ open System
 open Avalonia.Controls
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
+open BetterTTD.Network.Enums
 open BetterTTD.PacketTransformers
 open Elmish
 
 type Client =
-    { ClientID : uint32 }
+    { ClientID : uint32
+      Address  : string option
+      Name     : string option
+      Language : NetworkLanguage option }
+    with
+        static member create id =
+            { ClientID = id
+              Address  = None
+              Name     = None
+              Language = None }
 type ChatMessage =
     { ClientID : uint32 }
 
@@ -27,35 +37,37 @@ type Msg =
 let remove (clients : Client list) clientId =
     clients |> List.filter (fun x -> x.ClientID <> clientId)
     
-let add (clients : Client list) (client : Client) =
+let addOrUpdate (clients : Client list) (client : Client) =
     if clients |> List.exists (fun x -> x.ClientID = client.ClientID) then
-        clients
+        remove clients client.ClientID @ [ client ]
     else 
-        let newClient = { Client.ClientID = client.ClientID }
-        clients @ [newClient]
+        clients @ [ client ]
 
 let handleUpdate (model : Model) = function
-    | ServerWelcome      welcome -> printfn "welcome %A" welcome; model
-    | ServerChat         chat    -> printfn "chat %A" chat; model
+    | ServerWelcome      welcome -> printfn "welcome %A" welcome; model, NoOp
+    | ServerChat         chat    -> printfn "chat %A" chat; model, NoOp
     | ServerClientJoin   client  ->
         printfn "join %A" client
-        let newClient = { Client.ClientID = client.ClientId }
-        { model with Clients = add model.Clients newClient }
+        let newClient = Client.create client.ClientID
+        { model with Clients = addOrUpdate model.Clients newClient }, PollClient client.ClientID
     | ServerClientInfo   client  ->
         printfn "info %A" client
-        let newClient = { Client.ClientID = client.ClientId }
-        { model with Clients = add model.Clients newClient }
+        let newClient = { Client.create client.ClientID with
+                            Address  = Some client.Address
+                            Name     = Some client.Name
+                            Language = Some client.Language }
+        { model with Clients = addOrUpdate model.Clients newClient }, NoOp
     | ServerClientUpdate client  ->
         printfn "update %A" client
-        let newClient = { Client.ClientID = client.ClientId }
-        { model with Clients = add model.Clients newClient }
+        let newClient = Client.create client.ClientID
+        { model with Clients = addOrUpdate model.Clients newClient }, NoOp
     | ServerClientError  client  ->
         printfn "error %A" client
-        { model with Clients = remove model.Clients client.ClientId }
+        { model with Clients = remove model.Clients client.ClientID }, NoOp
     | ServerClientQuit   client  ->
         printfn "quit %A" client
-        { model with Clients = remove model.Clients client.ClientId }
-    | _ -> model
+        { model with Clients = remove model.Clients client.ClientID }, NoOp
+    | _ -> model, NoOp
 
 let init () =
     { Clients  = List.empty
@@ -65,12 +77,10 @@ let init () =
 let update msg model =
     match msg with
     | ServerUpdate upd ->
-        handleUpdate model upd, Cmd.none,
-        NoOp
+        let newModel, externalMsg = handleUpdate model upd
+        newModel, Cmd.none, externalMsg
     | RefreshClients ->
-        model,
-        Cmd.none,
-        PollClient UInt32.MaxValue
+        model, Cmd.none, PollClient UInt32.MaxValue
 
 let view (model : Model) dispatch =
     Grid.create [
