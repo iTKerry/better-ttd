@@ -17,6 +17,7 @@
         <Compile Include="Coordinator.fs" />
         <Compile Include="OpenTTD.fs" />
         <Compile Include="Login.fs" />
+        <Compile Include="Home.fs" />
         <Compile Include="Shell.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>

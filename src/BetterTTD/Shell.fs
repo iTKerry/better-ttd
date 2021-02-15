@@ -12,30 +12,26 @@ open Avalonia.FuncUI.DSL
 
 type Model =
     { OpenTTD : OpenTTD option
-      Login   : Login.Model }
+      Login   : Login.Model
+      Home    : Home.Model }
 
 type Msg =
     | LoginMsg of Login.Msg
-    | PollClient
-    | ServerUpdate of PacketMessage
+    | HomeMsg of Home.Msg
 
 let init =
     let login, loginCmd = Login.init ()
-    { OpenTTD = None; Login = login }, Cmd.batch [ Cmd.map LoginMsg loginCmd ]
-
-let handleUpdate (model : Model) = function
-    | ServerChat         chat    -> printfn "chat %A" chat; model
-    | ServerClientJoin   client  -> printfn "join %A" client; model
-    | ServerClientInfo   client  -> printfn "info %A" client; model
-    | ServerClientUpdate client  -> printfn "update %A" client; model
-    | ServerClientError  client  -> printfn "error %A" client; model
-    | ServerClientQuit   client  -> printfn "quit %A" client; model
-    | _ -> model
+    let home, homeCmd = Home.init ()
+    { OpenTTD = None
+      Login = login
+      Home = home },
+    Cmd.batch [ Cmd.map LoginMsg loginCmd
+                Cmd.map HomeMsg  homeCmd ]
 
 let subscribe (ottd : OpenTTD) =
     let sub dispatch =
         ottd.OnUpdate.Publish
-        |> Observable.subscribe (fun pac -> dispatch (ServerUpdate pac))
+        |> Observable.subscribe (fun pac -> dispatch (Home.Msg.ServerUpdate pac))
         |> ignore
     Cmd.ofSub sub
 
@@ -43,34 +39,39 @@ let update (msg : Msg) (model : Model) =
     match msg with
     | LoginMsg loginMsg ->
         let loginModel, loginCmd, extraMsg = Login.update loginMsg model.Login
+        
         let newModel, newCmd =
             match extraMsg with
             | Login.ExternalMsg.NoOp -> model, Cmd.none
             | Login.ExternalMsg.Connected (ottd, welcomeMsg) ->
-                printfn "%A" welcomeMsg
+                let welcome = Home.Msg.ServerUpdate <| ServerWelcome welcomeMsg
+                let refreshClients = Home.Msg.RefreshClients
                 { model with OpenTTD = Some ottd },
-                Cmd.batch [ subscribe ottd; Cmd.ofMsg PollClient ] 
+                Cmd.batch [ subscribe ottd
+                            Cmd.ofMsg welcome
+                            Cmd.ofMsg refreshClients ]
+                
         { newModel with Login = loginModel },
-        Cmd.batch [ Cmd.map LoginMsg loginCmd; newCmd ]
-    | PollClient ->
-        match model.OpenTTD with
-        | Some ottd -> ottd.AskPollClient UInt32.MaxValue
-        | None -> failwith "Invalid operation"
-        model, Cmd.none
-    | ServerUpdate upd -> handleUpdate model upd, Cmd.none  
+        Cmd.batch [ Cmd.map LoginMsg loginCmd
+                    Cmd.map HomeMsg newCmd ]
+        
+    | HomeMsg homeMsg ->
+        let homeModel, homeCmd, extraMsg = Home.update homeMsg model.Home
+        
+        match extraMsg with
+        | Home.ExternalMsg.NoOp -> ()
+        | Home.ExternalMsg.PollClient clientId ->
+            match model.OpenTTD with
+            | Some ottd -> ottd.AskPollClient clientId
+            | None -> failwith "Invalid operation"
+        
+        { model with Home = homeModel },
+        Cmd.map HomeMsg homeCmd
 
 let view (model : Model) dispatch =
     match model.OpenTTD with
-    | None -> (Login.view model.Login (LoginMsg >> dispatch))
-    | Some _ ->
-         Grid.create [
-             Grid.children [
-                 Button.create [
-                     Button.onClick (fun _ -> dispatch PollClient)
-                     Button.content "Poll"
-                 ]
-             ]
-         ]
+    | None   -> (Login.view model.Login (LoginMsg >> dispatch))
+    | Some _ -> (Home.view model.Home (HomeMsg >> dispatch))
         
 type MainWindow() as this =
     inherit HostWindow()

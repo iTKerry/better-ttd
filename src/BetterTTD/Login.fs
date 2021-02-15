@@ -25,7 +25,7 @@ type Msg =
     | ConnectCompleted of OpenTTD * ServerWelcomeMessage
     | ConnectFailed
 
-let connect (model : Model) dispatch =
+let connect model dispatch =
     let serverInfo = { Address = IPAddress.Parse (model.Host); Port = model.Port }
     let ottd = OpenTTD(serverInfo)
     ottd.TellConnect model.Pass
@@ -49,7 +49,7 @@ let update msg model =
     | ConnectFailed -> model, Cmd.none, NoOp
     
 
-let view state dispatch =
+let view model dispatch =
     Grid.create [
         Grid.children [
             StackPanel.create [
@@ -60,15 +60,15 @@ let view state dispatch =
                         TextBlock.text "Connect to OpenTTD Admin"
                     ]
                     TextBox.create [
-                        TextBox.text state.Host
+                        TextBox.text model.Host
                         TextBox.onTextChanged (fun text -> dispatch <| HostChanged text)
                     ]
                     TextBox.create [
-                        TextBox.text <| string state.Port
+                        TextBox.text <| string model.Port
                         TextBox.onTextChanged (fun text -> dispatch <| PortChanged text)
                     ]
                     TextBox.create [
-                        TextBox.text state.Pass
+                        TextBox.text model.Pass
                         TextBox.passwordChar '*'
                         TextBox.onTextChanged (fun text -> dispatch <| PassChanged text)
                     ]
