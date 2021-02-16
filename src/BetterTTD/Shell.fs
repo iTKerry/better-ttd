@@ -1,6 +1,5 @@
 ﻿module BetterTTD.Shell
 
-open System
 open BetterTTD.OpenTTDModule
 open BetterTTD.PacketTransformers
 open Elmish
@@ -8,7 +7,6 @@ open Avalonia.Controls
 open Avalonia.FuncUI
 open Avalonia.FuncUI.Components.Hosts
 open Avalonia.FuncUI.Elmish
-open Avalonia.FuncUI.DSL
 
 type Model =
     { OpenTTD : OpenTTD option
@@ -81,7 +79,7 @@ type MainWindow() as this =
         base.Height    <- 600.0
         base.MinWidth  <- 800.0
         base.MinHeight <- 600.0
-        base.TransparencyLevelHint <- WindowTransparencyLevel.None
+        base.TransparencyLevelHint <- WindowTransparencyLevel.AcrylicBlur
 
         Elmish.Program.mkProgram (fun () -> init) update view
         |> Program.withHost this
