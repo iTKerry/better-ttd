@@ -1,10 +1,7 @@
 ﻿module BetterTTD.Home
 
 open System
-open System.Collections.Generic
 open Avalonia.Controls
-open Avalonia.FuncUI.DSL
-open Avalonia.FuncUI.DSL
 open Avalonia.FuncUI.DSL
 open Avalonia.Layout
 open BetterTTD.Network.Enums
@@ -102,12 +99,18 @@ let update msg model =
     | RefreshClients ->
         model, Cmd.none, PollClient UInt32.MaxValue
 
+let chat messages =
+    if List.isEmpty messages then "Chat is empty..."
+    else messages
+         |> List.map (fun x -> sprintf $"[{x.Sender}] {x.Message}\n")
+         |> List.reduce (+)
+
+let navigation =
+    TabControl.create [
+        
+    ]
+
 let view (model : Model) dispatch =
-    let chat =
-        if List.isEmpty model.Messages then "Chat is empty..."
-        else model.Messages
-             |> List.map (fun x -> sprintf $"[{x.Sender}] {x.Message}\n")
-             |> List.reduce (+)
     Grid.create [
          Grid.children [
              StackPanel.create [
@@ -115,7 +118,7 @@ let view (model : Model) dispatch =
                  StackPanel.horizontalAlignment HorizontalAlignment.Center
                  StackPanel.children [
                      TextBlock.create [
-                         TextBlock.text chat
+                         TextBlock.text <| chat model.Messages
                      ]
                      Button.create [
                          Button.onClick (fun _ -> dispatch RefreshClients)
