@@ -11,5 +11,12 @@
     <ItemGroup>
       <ProjectReference Include="..\OpenTTD.Network\OpenTTD.Network.fsproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Include="Messages.fs" />
+      <Compile Include="Receiver.fs" />
+      <Compile Include="Sender.fs" />
+      <Compile Include="Coordinator.fs" />
+    </ItemGroup>
     
 </Project>
