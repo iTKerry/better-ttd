@@ -5,10 +5,10 @@ module Receiver =
     open System
     open System.IO
     
-    open OpenTTD.Actors.Messages
     open Akka.FSharp
     open FSharpx.Collections
     
+    open OpenTTD.Actors.Messages
     open OpenTTD.Network.Packet
     open OpenTTD.Network.PacketTransformers
 
