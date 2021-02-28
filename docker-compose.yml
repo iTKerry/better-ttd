@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  identityserver:
+    image: ${DOCKER_REGISTRY-}identityserver
+    build:
+      context: .
+      dockerfile: src/Services/Identity/IdentityServer/Dockerfile
+
+  openttd.api:
+    image: ${DOCKER_REGISTRY-}openttdapi
+    build:
+      context: .
+      dockerfile: src/Services/OpenTTD/OpenTTD.API/Dockerfile
+
