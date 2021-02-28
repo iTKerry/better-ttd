@@ -1,15 +1,15 @@
-﻿namespace Identity.API
+﻿namespace IdentityServer
 
 module App =
 
     open System
     open System.IO
-    
+    open System.Text
+
     open Giraffe
 
-    open Identity.API.Views
-    open Identity.API.Handlers
-    
+    open Microsoft.IdentityModel.Tokens
+    open Microsoft.AspNetCore.Authentication.JwtBearer
     open Microsoft.AspNetCore.Builder
     open Microsoft.AspNetCore.Cors.Infrastructure
     open Microsoft.AspNetCore.Hosting
@@ -20,27 +20,46 @@ module App =
     open Microsoft.AspNetCore.Identity
     open Microsoft.AspNetCore.Identity.EntityFrameworkCore
     open Microsoft.EntityFrameworkCore
+        
+    let guiApp =
+        choose [
+            route "/login" >=>
+                choose [
+                    GET  >=> htmlView (Views.loginPage false)
+                    POST >=> App.loginHandler
+                ]
+            route "/register" >=>
+                choose [
+                    GET  >=> htmlView Views.registerPage
+                    POST >=> App.registerHandler
+                ]
+            GET >=>
+                choose [
+                    route "/"     >=> htmlView Views.indexPage
+                    route "/user" >=> App.mustBeLoggedIn >=> App.userHandler
+                ]
+        ]
+    
+    let apiApp =
+        subRoute "/api"
+            (choose [
+                route "/token" >=> POST >=> Api.tokenHandler
+                route "/user"  >=> GET  >=> Api.authorize >=> text "some user info"
+             ])
     
     let webApp =
         choose [
-            GET >=>
-                choose [
-                    route "/"         >=> htmlView indexPage
-                    route "/register" >=> htmlView registerPage
-                    route "/login"    >=> htmlView (loginPage false)
+            guiApp
+            apiApp
+            setStatusCode 404 >=> text "Not Found"
+        ]
 
-                    route "/logout"   >=> mustBeLoggedIn >=> logoutHandler
-                    route "/user"     >=> mustBeLoggedIn >=> userHandler
-                ]
-            POST >=>
-                choose [
-                    route "/register" >=> registerHandler
-                    route "/login"    >=> loginHandler
-                ]
-            setStatusCode 404 >=> text "Not Found" ]
+    let errorHandler (ex : Exception) (logger : ILogger) =
+        logger.LogError(EventId(), ex, "An unhandled exception has occurred while executing the request.")
+        clearResponse >=> setStatusCode 500 >=> text ex.Message
 
     let configureCors (builder : CorsPolicyBuilder) =
-        builder.WithOrigins("http://localhost:8080").AllowAnyMethod().AllowAnyHeader() |> ignore
+        builder.WithOrigins("http://localhost:5000").AllowAnyMethod().AllowAnyHeader() |> ignore
 
     let configureApp (app : IApplicationBuilder) =
         app.UseCors(configureCors)
@@ -49,34 +68,40 @@ module App =
            .UseGiraffe webApp
 
     let configureServices (services : IServiceCollection) =
-        // Configure InMemory Db for sample application
         services.AddDbContext<IdentityDbContext<IdentityUser>>(
             fun options ->
                 options.UseInMemoryDatabase("NameOfDatabase") |> ignore
             ) |> ignore
 
-        // Register Identity Dependencies
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(fun options ->
+                options.TokenValidationParameters <- TokenValidationParameters(
+                    ValidateActor = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = "betterttd.net",
+                    ValidAudience = "betterttd.net",
+                    IssuerSigningKey = SymmetricSecurityKey(Encoding.UTF8.GetBytes("1ade4cd4-32a5-4e39-b57d-103b6d157744")))
+            ) |> ignore
+        
         services.AddIdentity<IdentityUser, IdentityRole>(
             fun options ->
-                // Password settings
-                options.Password.RequireDigit   <- true
-                options.Password.RequiredLength <- 8
+                options.Password.RequireDigit   <- false
+                options.Password.RequiredLength <- 5
                 options.Password.RequireNonAlphanumeric <- false
-                options.Password.RequireUppercase <- true
+                options.Password.RequireUppercase <- false
                 options.Password.RequireLowercase <- false
 
-                // Lockout settings
                 options.Lockout.DefaultLockoutTimeSpan  <- TimeSpan.FromMinutes 30.0
                 options.Lockout.MaxFailedAccessAttempts <- 10
 
-                // User settings
                 options.User.RequireUniqueEmail <- true
             )
             .AddEntityFrameworkStores<IdentityDbContext<IdentityUser>>()
             .AddDefaultTokenProviders()
             |> ignore
 
-        // Configure app cookie
         services.ConfigureApplicationCookie(
             fun options ->
                 options.ExpireTimeSpan <- TimeSpan.FromDays 150.0
@@ -84,10 +109,8 @@ module App =
                 options.LogoutPath     <- PathString "/logout"
             ) |> ignore
 
-        // Enable CORS
         services.AddCors() |> ignore
 
-        // Configure Giraffe dependencies
         services.AddGiraffe() |> ignore
 
     let configureLogging (builder : ILoggingBuilder) =

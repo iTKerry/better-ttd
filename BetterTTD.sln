@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{5E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{CFAFB26B-BE42-4442-9430-1EBEAA1E2BF3}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Identity.API", "src\Services\Identity\Identity.API\Identity.API.fsproj", "{60EECCBA-FD66-4A2B-A8B2-6C82D58AFC35}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IdentityServer", "src\Services\Identity\IdentityServer\IdentityServer.fsproj", "{60EECCBA-FD66-4A2B-A8B2-6C82D58AFC35}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenTTD", "OpenTTD", "{50457426-8E6B-4350-899A-4D48C1EB75FF}"
 EndProject
