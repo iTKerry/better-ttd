@@ -1,6 +1,6 @@
 ﻿namespace IdentityServer
 
-module App =
+module Program =
 
     open System
     open System.IO

@@ -6,10 +6,17 @@ services:
     build:
       context: .
       dockerfile: src/Services/Identity/IdentityServer/Dockerfile
+    networks:
+      - betterttd
 
   openttd.api:
     image: ${DOCKER_REGISTRY-}openttdapi
     build:
       context: .
       dockerfile: src/Services/OpenTTD/OpenTTD.API/Dockerfile
+    networks:
+      - betterttd
 
+networks:
+  betterttd:
+    name: betterttd.network

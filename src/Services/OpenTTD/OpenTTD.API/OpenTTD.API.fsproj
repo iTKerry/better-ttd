@@ -23,6 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\OpenTTD.Actors\OpenTTD.Actors.fsproj" />
       <ProjectReference Include="..\OpenTTD.Network\OpenTTD.Network.fsproj" />
     </ItemGroup>
 
