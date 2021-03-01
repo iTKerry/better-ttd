@@ -1,7 +1,9 @@
 ﻿open System
 open System.IO
+open System.Net
 open System.Security.Claims
 open Microsoft.AspNetCore.Authentication
+open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
@@ -9,6 +11,7 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.DependencyInjection
+open Microsoft.IdentityModel.Logging
 open Microsoft.IdentityModel.Tokens
 open Giraffe
 
@@ -68,10 +71,11 @@ let authenticationOptions (o : AuthenticationOptions) =
 let jwtBearerOptions (cfg : JwtBearerOptions) =
     cfg.SaveToken <- true
     cfg.IncludeErrorDetails <- true
-    cfg.Authority <- "https://accounts.google.com"
-    cfg.Audience <- "your-oauth-2.0-client-id.apps.googleusercontent.com"
+    cfg.Authority <- "http://localhost:8010/"
+    cfg.Audience <- "http://localhost:5000/"
+    cfg.RequireHttpsMetadata <- false
     cfg.TokenValidationParameters <- TokenValidationParameters (
-        ValidIssuer = "accounts.google.com"
+        ValidIssuer = "localhost:8010"
     )
 
 let configureServices (services : IServiceCollection) =
@@ -81,11 +85,13 @@ let configureServices (services : IServiceCollection) =
         .AddJwtBearer(Action<JwtBearerOptions> jwtBearerOptions) |> ignore
 
 let configureLogging (builder : ILoggingBuilder) =
-    let filter (l : LogLevel) = l.Equals LogLevel.Error
+    let filter (l : LogLevel) = l.Equals LogLevel.Trace
     builder.AddFilter(filter).AddConsole().AddDebug() |> ignore
 
 [<EntryPoint>]
 let main _ =
+    IdentityModelEventSource.ShowPII <- true
+    ServicePointManager.SecurityProtocol <- SecurityProtocolType.Tls12; 
     let contentRoot = Directory.GetCurrentDirectory()
     let webRoot     = Path.Combine(contentRoot, "WebRoot")
     Host.CreateDefaultBuilder()

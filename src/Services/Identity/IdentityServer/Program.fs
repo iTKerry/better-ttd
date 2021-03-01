@@ -1,15 +1,34 @@
 ﻿namespace IdentityServer
 
+open IdentityServer.Models
+
+module Config =
+    
+    open IdentityServer4.Models
+
+    let identityResources : IdentityResource list =
+        [ IdentityResources.OpenId()
+          IdentityResources.Profile() ]
+    
+    let apiScopes : ApiScope list =
+        [ ApiScope("api", "API") ]
+        
+    let clients : Client list =
+        let apiClient = Client()
+        apiClient.ClientId <- "apiClient"
+        apiClient.ClientSecrets <- [| Secret("secret".Sha256()) |]
+        apiClient.AllowedGrantTypes <- GrantTypes.ClientCredentials
+        apiClient.AllowedScopes <- [| "api" |]
+        [ apiClient ]
+    
+
 module Program =
 
     open System
     open System.IO
-    open System.Text
 
     open Giraffe
 
-    open Microsoft.IdentityModel.Tokens
-    open Microsoft.AspNetCore.Authentication.JwtBearer
     open Microsoft.AspNetCore.Builder
     open Microsoft.AspNetCore.Cors.Infrastructure
     open Microsoft.AspNetCore.Hosting
@@ -65,6 +84,8 @@ module Program =
         app.UseCors(configureCors)
            .UseGiraffeErrorHandler(errorHandler)
            .UseAuthentication()
+           .UseIdentityServer()
+           .UseRouting()
            .UseGiraffe webApp
 
     let configureServices (services : IServiceCollection) =
@@ -73,36 +94,30 @@ module Program =
                 options.UseInMemoryDatabase("NameOfDatabase") |> ignore
             ) |> ignore
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(fun options ->
-                options.TokenValidationParameters <- TokenValidationParameters(
-                    ValidateActor = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = "betterttd.net",
-                    ValidAudience = "betterttd.net",
-                    IssuerSigningKey = SymmetricSecurityKey(Encoding.UTF8.GetBytes("1ade4cd4-32a5-4e39-b57d-103b6d157744")))
-            ) |> ignore
-        
-        services.AddIdentity<IdentityUser, IdentityRole>(
-            fun options ->
-                options.Password.RequireDigit   <- false
-                options.Password.RequiredLength <- 5
-                options.Password.RequireNonAlphanumeric <- false
-                options.Password.RequireUppercase <- false
-                options.Password.RequireLowercase <- false
-
-                options.Lockout.DefaultLockoutTimeSpan  <- TimeSpan.FromMinutes 30.0
-                options.Lockout.MaxFailedAccessAttempts <- 10
-
-                options.User.RequireUniqueEmail <- true
-            )
-            .AddEntityFrameworkStores<IdentityDbContext<IdentityUser>>()
-            .AddDefaultTokenProviders()
+        services
+            .AddIdentityServer(
+                fun options ->
+                    options.Events.RaiseErrorEvents       <- true
+                    options.Events.RaiseInformationEvents <- true
+                    options.Events.RaiseFailureEvents     <- true
+                    options.Events.RaiseSuccessEvents     <- true
+                    options.EmitStaticAudienceClaim       <- true)
+            .AddAspNetIdentity<ApplicationUser>()
+            .AddInMemoryIdentityResources(Config.identityResources)
+            .AddInMemoryApiScopes(Config.apiScopes)
+            .AddInMemoryClients(Config.clients)
+            .AddDeveloperSigningCredential()
             |> ignore
-
-        services.ConfigureApplicationCookie(
+        
+        services
+            .AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<IdentityDbContext<ApplicationUser>>()
+            .AddDefaultTokenProviders() |> ignore
+        
+        services.AddAuthentication() |> ignore
+        
+        services
+            .ConfigureApplicationCookie(
             fun options ->
                 options.ExpireTimeSpan <- TimeSpan.FromDays 150.0
                 options.LoginPath      <- PathString "/login"

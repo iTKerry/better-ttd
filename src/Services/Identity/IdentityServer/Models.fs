@@ -2,6 +2,8 @@
 
 module Models =
 
+    open Microsoft.AspNetCore.Identity
+
     [<CLIMutable>]
     type RegisterModel =
         { UserName : string
@@ -12,3 +14,6 @@ module Models =
     type LoginModel =
         { UserName : string
           Password : string }
+    
+    type ApplicationUser() =
+        inherit IdentityUser()
