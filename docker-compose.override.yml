@@ -7,14 +7,17 @@ services:
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "8010:80/tcp"
-    volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
 
+  identityserver.db:
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "8015:1433/tcp"
+    
   openttd.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "8020:80/tcp"
-    volumes:
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
