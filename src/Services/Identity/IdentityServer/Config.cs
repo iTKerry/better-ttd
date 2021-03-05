@@ -13,7 +13,6 @@ namespace IdentityServer
                 new IdentityResources.Profile(),
             };
 
-
         public static IEnumerable<ApiScope> ApiScopes =>
             new List<ApiScope>
             {
@@ -23,31 +22,20 @@ namespace IdentityServer
         public static IEnumerable<Client> Clients =>
             new List<Client>
             {
-                // machine to machine client
                 new()
                 {
                     ClientId = "client",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
-
+                    ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    // scopes that client has access to
-                    AllowedScopes = { "api1" }
+                    AllowedScopes = {"api1"}
                 },
-                
-                // interactive ASP.NET Core MVC client
                 new()
                 {
                     ClientId = "mvc",
-                    ClientSecrets = { new Secret("secret".Sha256()) },
-
+                    ClientSecrets = {new Secret("secret".Sha256())},
                     AllowedGrantTypes = GrantTypes.Code,
-                    
-                    // where to redirect to after login
-                    RedirectUris = { "https://localhost:5002/signin-oidc" },
-
-                    // where to redirect to after logout
-                    PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
-
+                    RedirectUris = {"https://localhost:5002/signin-oidc"},
+                    PostLogoutRedirectUris = {"https://localhost:5002/signout-callback-oidc"},
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,

@@ -22,23 +22,26 @@ namespace IdentityServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services
+                .AddControllersWithViews();
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(_conf.GetConnectionString("IdentityDb")));
+            services
+                .AddDbContext<ApplicationDbContext>(opt =>
+                    opt.UseSqlServer(_conf.GetConnectionString("IdentityDb")));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services
+                .AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddIdentityServer(options =>
+            services
+                .AddIdentityServer(opt =>
                 {
-                    options.Events.RaiseErrorEvents = true;
-                    options.Events.RaiseInformationEvents = true;
-                    options.Events.RaiseFailureEvents = true;
-                    options.Events.RaiseSuccessEvents = true;
-
-                    options.EmitStaticAudienceClaim = true;
+                    opt.Events.RaiseErrorEvents = true;
+                    opt.Events.RaiseInformationEvents = true;
+                    opt.Events.RaiseFailureEvents = true;
+                    opt.Events.RaiseSuccessEvents = true;
+                    opt.EmitStaticAudienceClaim = true;
                 })
                 .AddInMemoryIdentityResources(Config.IdentityResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
