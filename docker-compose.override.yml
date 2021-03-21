@@ -1,6 +1,13 @@
 version: '3.4'
 
 services:
+  identityserver_db:
+    environment:
+      SA_PASSWORD: "Your_password123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "8015:1433/tcp"
+
   identityserver:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -8,14 +15,7 @@ services:
     ports:
       - "8010:80/tcp"
 
-  identityserver.db:
-    environment:
-      SA_PASSWORD: "Your_password123"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "8015:1433/tcp"
-    
-  openttd.api:
+  openttd_api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
