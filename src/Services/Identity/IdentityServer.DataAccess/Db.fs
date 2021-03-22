@@ -9,22 +9,6 @@ open Microsoft.EntityFrameworkCore.Design
 let private connectionString =
     "Server=localhost,8015;Database=BetterTTD;User=sa;Password=Your_password123;"
 
-let private testUsers =
-    [|
-        { SubjectId = "d860efca-22d9-47fd-8249-791ba61b07c7"
-          Username = "Frank"
-          Password = "password"
-          IsActive = true
-          Claims = []
-          Logins = [] }
-        { SubjectId = "b7539694-97e7-4dfe-84da-b4256e1ff5c7"
-          Username = "Claire"
-          Password = "password"
-          IsActive = true
-          Claims = []
-          Logins = [] }
-    |]
-
 type IdentityContext(opt : DbContextOptions<IdentityContext>) =
     inherit DbContext(opt)
     
@@ -52,26 +36,22 @@ type IdentityContext(opt : DbContextOptions<IdentityContext>) =
             match! ctx.users.AnyAsync() with
             | true -> ()
             | false ->
-                do! ctx.users.AddRangeAsync (testUsers)
+                do! ctx.users.AddRangeAsync (Seed.users)
                 let! _ = ctx.SaveChangesAsync ()
                 ()
         }
 
-type IdentityContextFactory() =
-    interface IDesignTimeDbContextFactory<IdentityContext> with
-        member this.CreateDbContext(args) =
-            let migrationsAssembly = "IdentityServer.Migrations"
-            let optsBuilder = DbContextOptionsBuilder<IdentityContext>()
-            optsBuilder
-                .UseSqlServer(connectionString,
-                              fun x -> x.MigrationsAssembly migrationsAssembly |> ignore)
-                |> ignore
-            new IdentityContext(optsBuilder.Options)
-
 let cfg =
-    Action<_> (fun (builder : DbContextOptionsBuilder) ->
+    Action<DbContextOptionsBuilder<IdentityContext>> (fun (builder : DbContextOptionsBuilder<IdentityContext>) ->
         let migrationsAssembly = "IdentityServer.Migrations"
         builder.UseSqlServer(
             connectionString,
             fun x -> x.MigrationsAssembly migrationsAssembly |> ignore)
         |> ignore)
+    
+type IdentityContextFactory() =
+    interface IDesignTimeDbContextFactory<IdentityContext> with
+        member this.CreateDbContext _ =
+            let optsBuilder = DbContextOptionsBuilder<IdentityContext>()
+            cfg.Invoke(optsBuilder)
+            new IdentityContext(optsBuilder.Options)

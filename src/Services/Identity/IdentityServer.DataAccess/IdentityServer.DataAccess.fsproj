@@ -16,6 +16,7 @@
     </ItemGroup>
     
     <ItemGroup>
+      <Compile Include="Seed.fs" />
       <Compile Include="Db.fs" />
     </ItemGroup>
     
