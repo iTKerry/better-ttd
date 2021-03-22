@@ -42,7 +42,7 @@ type IdentityContext(opt : DbContextOptions<IdentityContext>) =
         }
 
 let cfg =
-    Action<DbContextOptionsBuilder<IdentityContext>> (fun (builder : DbContextOptionsBuilder<IdentityContext>) ->
+    Action<DbContextOptionsBuilder> (fun (builder : DbContextOptionsBuilder) ->
         let migrationsAssembly = "IdentityServer.Migrations"
         builder.UseSqlServer(
             connectionString,

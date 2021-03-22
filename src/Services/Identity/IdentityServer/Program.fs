@@ -23,23 +23,25 @@ let errorHandler (ex : Exception) (logger : ILogger) =
     logger.LogError(EventId(), ex, "An unhandled exception has occurred while executing the request.")
     clearResponse >=> setStatusCode 500 >=> text ex.Message
 
-let configureApp (app : IApplicationBuilder) =
-    let ctx = app.ApplicationServices.GetService<Db.IdentityContext>()
+let migrate (ctx : Db.IdentityContext) =
     ctx.Database.Migrate()
     ctx.EnsureSeedDataAsync()
         |> Async.AwaitTask
         |> Async.RunSynchronously
+
+let configureApp (app : IApplicationBuilder) =
+    migrate (app.ApplicationServices.GetService<Db.IdentityContext>())
     app.UseCors(configureCors)
        .UseGiraffeErrorHandler(errorHandler)
-       //.UseAuthentication()
+       .UseAuthentication()
        .UseGiraffe webApp
 
 let configureServices (services : IServiceCollection) =
     services.AddDbContext<Db.IdentityContext>(Db.cfg) |> ignore
     services.AddMvc() |> ignore
-    //services
-    //  .AddIdentityServer()
-    //  .AddDeveloperSigningCredential() |> ignore
+    services
+      .AddIdentityServer()
+      .AddDeveloperSigningCredential() |> ignore
     
 let configureLogging (builder : ILoggingBuilder) =
     let filter (l : LogLevel) = l.Equals LogLevel.Error
