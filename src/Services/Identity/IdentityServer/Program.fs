@@ -33,7 +33,8 @@ let configureApp (app : IApplicationBuilder) =
     migrate (app.ApplicationServices.GetService<Db.IdentityContext>())
     app.UseCors(configureCors)
        .UseGiraffeErrorHandler(errorHandler)
-       .UseAuthentication()
+       .UseIdentityServer()
+       .UseStaticFiles()
        .UseGiraffe webApp
 
 let configureServices (services : IServiceCollection) =
@@ -41,7 +42,10 @@ let configureServices (services : IServiceCollection) =
     services.AddMvc() |> ignore
     services
       .AddIdentityServer()
-      .AddDeveloperSigningCredential() |> ignore
+      .AddDeveloperSigningCredential()
+      .AddInMemoryIdentityResources(Config.identityResources)
+      .AddInMemoryApiResources(Config.apiResources)
+      .AddInMemoryClients(Config.clients) |> ignore
     
 let configureLogging (builder : ILoggingBuilder) =
     let filter (l : LogLevel) = l.Equals LogLevel.Error
