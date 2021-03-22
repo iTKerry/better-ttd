@@ -4,6 +4,10 @@ open System
 open Domain
 open Microsoft.EntityFrameworkCore
 open FSharp.Control.Tasks.V2
+open Microsoft.EntityFrameworkCore.Design
+
+let private connectionString =
+    "Server=localhost,8015;Database=BetterTTD;User=sa;Password=Your_password123;"
 
 let private testUsers =
     [|
@@ -52,10 +56,22 @@ type IdentityContext(opt : DbContextOptions<IdentityContext>) =
                 let! _ = ctx.SaveChangesAsync ()
                 ()
         }
-        
-let cfg  =
+
+type IdentityContextFactory() =
+    interface IDesignTimeDbContextFactory<IdentityContext> with
+        member this.CreateDbContext(args) =
+            let migrationsAssembly = "IdentityServer.Migrations"
+            let optsBuilder = DbContextOptionsBuilder<IdentityContext>()
+            optsBuilder
+                .UseSqlServer(connectionString,
+                              fun x -> x.MigrationsAssembly migrationsAssembly |> ignore)
+                |> ignore
+            new IdentityContext(optsBuilder.Options)
+
+let cfg =
     Action<_> (fun (builder : DbContextOptionsBuilder) ->
+        let migrationsAssembly = "IdentityServer.Migrations"
         builder.UseSqlServer(
-            "Server=identityserver_db;Database=BetterTTD;User=sa;Password=Your_password123;Trusted_Connection=true;MultipleActiveResultSets=true;",
-            fun x -> x.MigrationsAssembly "IdentityServer.Migrations" |> ignore)
+            connectionString,
+            fun x -> x.MigrationsAssembly migrationsAssembly |> ignore)
         |> ignore)

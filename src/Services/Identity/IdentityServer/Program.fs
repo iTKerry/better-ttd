@@ -2,7 +2,7 @@
 
 open System
 open System.IO
-open Db
+open Microsoft.EntityFrameworkCore
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
@@ -24,9 +24,9 @@ let errorHandler (ex : Exception) (logger : ILogger) =
     clearResponse >=> setStatusCode 500 >=> text ex.Message
 
 let configureApp (app : IApplicationBuilder) =
-    app.ApplicationServices
-        .GetService<IdentityContext>()
-        .EnsureSeedDataAsync()
+    let ctx = app.ApplicationServices.GetService<Db.IdentityContext>()
+    ctx.Database.Migrate()
+    ctx.EnsureSeedDataAsync()
         |> Async.AwaitTask
         |> Async.RunSynchronously
     app.UseCors(configureCors)
@@ -34,10 +34,8 @@ let configureApp (app : IApplicationBuilder) =
        //.UseAuthentication()
        .UseGiraffe webApp
 
-
-
 let configureServices (services : IServiceCollection) =
-    services.AddDbContext<IdentityContext>(Db.cfg) |> ignore
+    services.AddDbContext<Db.IdentityContext>(Db.cfg) |> ignore
     services.AddMvc() |> ignore
     //services
     //  .AddIdentityServer()
