@@ -21,7 +21,13 @@ type UserLogin = {
     [<Required>]
     [<MaxLength(250)>]
     ProviderKey : string
-}
+} with
+    static member Create (subjectId, loginProvider, providerKey) = {
+        Id = 0
+        SubjectId = subjectId
+        LoginProvider = loginProvider
+        ProviderKey = providerKey
+    }
 
 [<CLIMutable>]
 [<Table("Claims")>]
@@ -67,6 +73,6 @@ type User = {
     [<Required>]
     IsActive : bool
     
-    Claims : List<UserClaim>
-    Logins : List<UserLogin>
+    mutable Claims : List<UserClaim>
+    mutable Logins : List<UserLogin>
 }
