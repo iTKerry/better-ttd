@@ -14,6 +14,7 @@ type FunAs() =
 type Email = string
 
 
+
 let private getUserBy (ctx : IdentityContext, func : Expression<Func<_,bool>>) =
     task {
         let! usr = ctx.users.FirstOrDefaultAsync(func)
@@ -55,7 +56,7 @@ let getUserClaimsBySubjectId (ctx : IdentityContext, subjectId : string) =
     task {
         match! getUserBySubjectId(ctx, subjectId) with
         | Some usr -> return usr.Claims
-        | None -> return []
+        | None     -> return []
     }
 
 let getUserLoginsBySubjectId (ctx : IdentityContext, subjectId : string) =
@@ -78,7 +79,7 @@ let isUserActive (ctx : IdentityContext, subjectId : string) =
     task {
         match! getUserBySubjectId (ctx, subjectId) with
         | Some usr -> return usr.IsActive
-        | None -> return false
+        | None     -> return false
     }
     
 let addUser (ctx : IdentityContext, user : User) =

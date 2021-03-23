@@ -24,7 +24,10 @@
     
     <ItemGroup>
         <Compile Include="UserRepository.fs" />
-        <Compile Include="Services.fs" />
+        <Compile Include="ProfileService.fs" />
+        <Compile Include="ViewModels.fs" />
+        <Compile Include="Views.fs" />
+        <Compile Include="App.fs" />
         <Compile Include="Config.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
