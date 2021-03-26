@@ -1,25 +1,10 @@
 namespace WebMVC
 
-open System
-open System.Collections.Generic
 open System.IdentityModel.Tokens.Jwt
-open System.Linq
 open System.Threading.Tasks
-open Microsoft.AspNetCore.Authentication.Cookies
-open Microsoft.AspNetCore.Authentication.Cookies
-open Microsoft.AspNetCore.Authentication.Cookies
-open Microsoft.AspNetCore.Authentication.JwtBearer
 open Microsoft.AspNetCore.Authentication.OpenIdConnect
-open Microsoft.AspNetCore.Authentication.OpenIdConnect
-open Microsoft.AspNetCore.Authentication.OpenIdConnect
-open Microsoft.AspNetCore.Authentication.OpenIdConnect
-open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Builder
 open Microsoft.AspNetCore.Hosting
-open Microsoft.AspNetCore.Http
-open Microsoft.AspNetCore.Http
-open Microsoft.AspNetCore.HttpsPolicy;
-open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Hosting
@@ -39,26 +24,15 @@ type Startup private () =
             .AddAuthentication(fun opt ->
                 opt.DefaultScheme <- "Cookies"
                 opt.DefaultChallengeScheme <- "oidc")
+            .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", fun opt ->
                 opt.Authority <- "https://localhost:5001/"
-                opt.SignInScheme <- "Cookies"
-                
-                opt.RequireHttpsMetadata <- true
                 
                 opt.ClientId <- "mvc"
                 opt.ClientSecret <- "secret"
-                opt.ResponseType <- "code id_token"
+                opt.ResponseType <- "code"
                 
-                opt.Scope.Add("openid")
-                
-                opt.GetClaimsFromUserInfoEndpoint <- true
-                opt.SaveTokens <- true
-                
-                let events = OpenIdConnectEvents()
-                events.OnAccessDenied <- (fun x -> printfn "%A" x; Task.CompletedTask)
-                events.OnAuthenticationFailed <- (fun x -> printfn "%A" x; Task.CompletedTask)
-                opt.Events <- events)
-            .AddCookie("Cookies") |> ignore
+                opt.SaveTokens <- true) |> ignore
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
