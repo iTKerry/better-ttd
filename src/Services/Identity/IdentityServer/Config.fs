@@ -14,22 +14,23 @@ let apiResources =
 let private betterttdClient =
     let client = Client()
     client.ClientName <- "BetterTTD"
-    client.ClientId <- "betterttdclient"
+    client.ClientId <- "mvc"
     client.AllowedGrantTypes <- GrantTypes.Hybrid
     client.AccessTokenType <- AccessTokenType.Reference
-    client.RequireConsent <- false
-    client.AccessTokenLifetime <- 120
     client.UpdateAccessTokenClaimsOnRefresh <- true
     client.AllowOfflineAccess <- true
-    client.RedirectUris <- [| "https://localhost:44355/signin-oidc" |]
     client.AllowedScopes <-
         [| IdentityServerConstants.StandardScopes.OpenId
            IdentityServerConstants.StandardScopes.Profile
-           IdentityServerConstants.StandardScopes.Address |]
+           "openttdapi" |]
     client.ClientSecrets <-
         [| Secret("secret".Sha256()) |]
+    client.RedirectUris <-
+        [| "https://localhost:6001/signin-oidc" |]
     client.PostLogoutRedirectUris <-
-        [| "https://localhost:44355/signout-callback-oidc" |]
+        [| "https://localhost:6001/signout-callback-oidc" |]
+    client
         
+
 let clients : Client list =
-    [ ]
+    [ betterttdClient ]

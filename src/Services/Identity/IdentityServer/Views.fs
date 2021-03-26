@@ -3,25 +3,88 @@
 open ViewModels
 open Giraffe.GiraffeViewEngine
 
-let masterPage (pageTitle : string) (content : XmlNode list) =
+let private dataToggle = attr "data-toggle"
+let private dataTarget = attr "data-target"
+let private ariaExpanded = attr "aria-expanded"
+
+let masterPage pageTitle content userName  =
     html [] [
         head [] [
+            meta [ _charset "utf-8" ]
+            meta [ _httpEquiv "X-UA-Compatible"; _content "IE=edge" ]
+            meta [ _name "viewport"; _content "width=device-width, initial-scale=1.0" ]
             title [] [ str pageTitle ]
-            style [] [ rawText "label { display: inline-block; width: 80px; }" ]
+            link [ _rel "icon"; _type "image/x-icon"; _href "/favicon.ico" ]
+            link [ _rel "shortcut icon"; _type "image/x-icon"; _href "/favicon.ico" ]
+            link [ _rel "stylesheet"; _href "/lib/bootstrap/css/bootstrap.css" ]
+            link [ _rel "stylesheet"; _href "/css/site.css" ]
         ]
         body [] [
-            h1 [] [ str pageTitle ]
-            main [] content
-         ]
+            div [ _class "navbar navbar-inverse navbar-fixed-top" ] [
+                div [ _class "container-fluid" ] [
+                    div [ _class "navbar-header" ] [
+                        button [ _type "button"
+                                 _class "navbar-toggle collapsed"
+                                 dataToggle "collapse"
+                                 ariaExpanded "false"] [
+                            span [ _class "sr-only" ] [ str "Toggle navigation" ]
+                            span [ _class "icon-bar" ] [ ]
+                            span [ _class "icon-bar" ] [ ]
+                            span [ _class "icon-bar" ] [ ]
+                        ]
+                        a [ _href "/" ] [
+                            span [ _class "navbar-brand" ] [
+                                img [ _src "/icon.png"; _class "icon-banner" ]
+                                str "IdentityServer4"
+                            ]
+                        ]
+                    ]
+                    
+                    match userName with
+                    | Some usr ->
+                        ul [ _class "nav navbar-nav" ] [
+                            li [ _class "dropdown" ] [
+                                a [ _href "#"; _class "dropdown-toggle"; dataToggle "dropdown" ] [
+                                    str usr
+                                    b [ _class "caret" ] [ ]
+                                ]
+                                ul [ _class "dropdown-menu" ] [
+                                    li [] [
+                                        a [ _href "account/logout" ] []
+                                    ]
+                                ]
+                            ]
+                        ]
+                    | None     -> ()
+                ]
+            ]
+            
+            div [ _class "container body-content" ] [
+                main [] content
+            ]
+            
+            script [ _src "/lib/jquery/jquery.js" ] [ ]
+            script [ _src "/lib/bootstrap/js/bootstrap.js" ] [ ]
+        ]
     ]
     
-let errorView (model : ErrorViewModel) =
+let errorView model =
     let error =
-        if (box model.Error.Error = null) then None
-        else Some model.Error.Error
+        match model.Error with
+        | Some err ->
+            strong [] [
+                em [] [ str err.Error ]
+            ]
+        | None -> emptyText
+        
     let requestId =
-        if (box model.Error.RequestId = null) then None
-        else Some model.Error.RequestId
+        match model.Error with
+        | Some err ->
+            div [ _class "request-id" ] [
+                str $"Request Id: {err.RequestId}"
+            ]
+        | None -> emptyText
+        
     [
         div [ _class "error-page" ] [
             div [ _class "page-header" ] [
@@ -31,22 +94,11 @@ let errorView (model : ErrorViewModel) =
             div [ _class "row" ] [
                 div [ _class "col-sm-6" ] [
                     div [ _class "alert alert-danger" ] [
-                        str "Sorry, there was an error"
-                        
-                        match error with
-                        | Some err ->
-                            strong [] [
-                                em [] [ str err ]
-                            ]
-                        | None -> ()
+                        str "Sorry, there was an error "
+                        error
                     ]
                     
-                    match requestId with
-                    | Some rId ->
-                        div [ _class "request-id" ] [
-                            str $"Request Id: {rId}"
-                        ]
-                    | None -> ()
+                    requestId
                 ]
             ]
         ]
@@ -72,10 +124,12 @@ let homeView =
             ]
             
             div [ _class "row" ] [
-                p [] [
-                    str "Click "
-                    a [ _href "grants" ] [ str "here" ]
-                    str " to manage your stored grants."
+                div [ _class "col-sm-8" ] [
+                    p [] [
+                        str "Click "
+                        a [ _href "grants" ] [ str "here" ]
+                        str " to manage your stored grants."
+                    ]
                 ]
             ]
         ]

@@ -18,10 +18,8 @@ type Email = string
 let private getUserBy (ctx : IdentityContext, func : Expression<Func<_,bool>>) =
     task {
         let! usr = ctx.users.FirstOrDefaultAsync(func)
-        if (box usr = null) then
-            return None
-        else
-            return Some(usr)
+        if (box usr = null) then return None
+        else return Some usr
     }
 
 let getUserByName (ctx : IdentityContext, username : string) =

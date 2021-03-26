@@ -6,11 +6,13 @@ open System.Linq
 open System.Threading.Tasks
 open System.Diagnostics
 
+open Microsoft.AspNetCore.Authorization
 open Microsoft.AspNetCore.Mvc
 open Microsoft.Extensions.Logging
 
 open WebMVC.Models
 
+[<Authorize>]
 type HomeController (logger : ILogger<HomeController>) =
     inherit Controller()
 

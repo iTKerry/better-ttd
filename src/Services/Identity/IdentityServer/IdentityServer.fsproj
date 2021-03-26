@@ -2,8 +2,6 @@
 
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
-        <DebugType>portable</DebugType>
-        <EnableDefaultContentItems>false</EnableDefaultContentItems>
         <RunWorkingDirectory>$(MSBuildThisFileDirectory)</RunWorkingDirectory>
         <UserSecretsId>7bbff4a9-e987-4346-bfce-7b05e89fc239</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -29,6 +27,7 @@
         <Compile Include="Views.fs" />
         <Compile Include="App.fs" />
         <Compile Include="Config.fs" />
+        <Compile Include="Startup.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
     
