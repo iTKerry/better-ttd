@@ -10,11 +10,13 @@ namespace IdentityServer
     {
         public static IIdentityServerBuilder AddIdentityUserStore(this IIdentityServerBuilder builder)
         {
-            builder.Services
+            builder
+                .AddProfileService<ProfileService>()
+                .Services
                 .AddTransient<IIdentityUserRepository, IdentityUserRepository>()
                 .AddDbContext<IdentityContext>(opt =>
-                    opt.UseSqlServer("Server=localhost,8015;Database=BetterTTD;User=sa;Password=Your_password123;"));
-            builder.AddProfileService<ProfileService>();
+                    opt.UseSqlServer(
+                        "Server=localhost,55004;Database=BetterTTD;User=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true"));
             return builder;
         }
     }
