@@ -2,7 +2,6 @@
 
 open System
 open Giraffe
-open IdentityServer4.Extensions
 open IdentityServer4.Services
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Hosting
@@ -12,31 +11,30 @@ open FSharp.Control.Tasks.V2.ContextInsensitive
 open Helpers
 
 let htmlResult next ctx view =
-    htmlView (Views.layout ctx view) next ctx
+    htmlView (Views.Shared.layout ctx view) next ctx
 
 let homeHandler : HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
-        htmlResult next ctx Views.home
+        htmlResult next ctx Views.Home.index
 
 let homeErrorHandler : HttpHandler =
     fun next ctx ->
         task {
-            let userName = ctx.User.GetDisplayName()
             let interaction = ctx.GetService<IIdentityServerInteractionService>()
             let env = ctx.GetService<IWebHostEnvironment>()
             
             let result = htmlResult next ctx 
-            let getView msg = { Views.Error = msg } |> Views.errorView
+            let viewBuilder msg = { Views.Shared.Error = msg } |> Views.Shared.errorView
             
             match ctx.GetQueryStringValue "errorId" with
             | Ok errorId ->
                 let! msg = interaction.GetErrorContextAsync(errorId)
                 match toOption msg with
                 | Some msg ->
-                    if env.IsDevelopment() then return! result (Some msg |> getView)
-                    else msg.ErrorDescription <- null; return! result (Some msg |> getView)
-                | None -> return! result (None |> getView)
-            | Error _  -> return! result (None |> getView)
+                    if env.IsDevelopment() then return! result (Some msg |> viewBuilder)
+                    else msg.ErrorDescription <- null; return! result (Some msg |> viewBuilder)
+                | None -> return! result (None |> viewBuilder)
+            | Error _  -> return! result (None |> viewBuilder)
         }
 
 let webApp : HttpFunc -> HttpContext -> HttpFuncResult =
