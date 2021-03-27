@@ -1,5 +1,6 @@
 ﻿module Views
 
+open System.ComponentModel.DataAnnotations
 open Giraffe
 open GiraffeViewEngine
 open IdentityServer4.Models
@@ -190,6 +191,57 @@ module Home =
                     str ", and "
                     a [ _href "https://github.com/IdentityServer/IdentityServer4/tree/main/samples" ] [ str "ready to use samples" ]
                     str "."
+                ]
+            ]
+        ]
+        
+module Account =
+    type LoginViewModel =
+        { [<Required>]
+          Username      : string
+          [<Required>]
+          Password      : string
+          RememberLogin : bool
+          ReturnUrl     : string }
+    
+    let login (model : LoginViewModel) =
+        div [ _class "login-page" ] [
+            div [ _class "lead" ] [
+                h1 [] [ str "Login" ]
+            ]
+            
+            div [ _class "row" ] [
+                div [ _class "col-sm-6" ] [
+                    div [ _class "card" ] [
+                        div [ _class "card-header" ] [
+                            h2 [] [ str "Local Account" ]
+                        ]
+                        
+                        div [ _class "card-body"] [
+                            form [ _action "/account/login"; _method "POST" ] [
+                                input [ _type "hidden"; _for "ReturnUrl"; _value model.ReturnUrl ]
+                                
+                                div [ _class "form-group" ] [
+                                    label [ _for "Username" ] [ str "Username" ]
+                                    input [ _class "form-control"; _placeholder "Username"; _for "Username"; _autofocus ]
+                                ]
+                                div [ _class "form-group" ] [
+                                    label [ _for "Password" ] [ str "Password" ]
+                                    input [ _type "password"; _class "form-control"; _placeholder "Password"; _for "Password"; _autocomplete "off" ]
+                                ]
+                                div [ _class "form-group" ] [
+                                    div [ _class "form-check" ] [
+                                        input [ _class "form-check-input"; _for "RememberLogin"]
+                                        label [ _class "form-check-label"; _for "RememberLogin"] [
+                                            str "Remember My Login"
+                                        ]
+                                    ]
+                                ]
+                                button [ _class "btn btn-primary"; _name "button"; _value "login" ] [ str "Login" ]
+                                button [ _class "btn btn-secondary"; _name "button"; _value "cancel" ] [ str "Cancel" ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
         ]
