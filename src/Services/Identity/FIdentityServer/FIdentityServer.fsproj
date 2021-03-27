@@ -5,11 +5,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Helpers.fs" />
         <Compile Include="Config.fs" />
         <Compile Include="UserRepository.fs" />
         <Compile Include="Services.fs" />
-        <Compile Include="ViewModels.fs" />
-        <Compile Include="Views.fs" />
+        <Compile Include="Views\ViewHelpers.fs" />
+        <Compile Include="Views\Views.fs" />
         <Compile Include="App.fs" />
         <Compile Include="Startup.fs" />
         <Compile Include="Program.fs" />
@@ -24,6 +25,7 @@
     <ItemGroup>
       <PackageReference Include="Giraffe" Version="4.1.0" />
       <PackageReference Include="IdentityServer4" Version="4.1.2" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

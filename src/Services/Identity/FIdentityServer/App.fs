@@ -4,35 +4,39 @@ open System
 open Giraffe
 open IdentityServer4.Extensions
 open IdentityServer4.Services
+open Microsoft.AspNetCore.Hosting
+open Microsoft.Extensions.Hosting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 open FSharp.Control.Tasks.V2.ContextInsensitive
+open Helpers
 
-let private getUserName (ctx : HttpContext) =
-    let username = ctx.User.GetDisplayName ()
-    if (box username = null) then None
-    else Some username
+let htmlResult next ctx view =
+    htmlView (Views.layout ctx view) next ctx
 
 let homeHandler : HttpHandler =
     fun (next : HttpFunc) (ctx : HttpContext) ->
-        task {
-            let view = getUserName ctx |> Views.homeView 
-            return! htmlView view next ctx
-        }
+        htmlResult next ctx Views.home
 
 let homeErrorHandler : HttpHandler =
     fun next ctx ->
         task {
-            let userName = getUserName ctx
+            let userName = ctx.User.GetDisplayName()
             let interaction = ctx.GetService<IIdentityServerInteractionService>()
+            let env = ctx.GetService<IWebHostEnvironment>()
+            
+            let result = htmlResult next ctx 
+            let getView msg = { Views.Error = msg } |> Views.errorView
+            
             match ctx.GetQueryStringValue "errorId" with
             | Ok errorId ->
                 let! msg = interaction.GetErrorContextAsync(errorId)
-                let errorView = Views.errorView { Error = Some msg } userName
-                return! htmlView errorView next ctx
-            | Error _ ->
-                let errorView = Views.errorView { Error = None } userName
-                return! htmlView errorView next ctx
+                match toOption msg with
+                | Some msg ->
+                    if env.IsDevelopment() then return! result (Some msg |> getView)
+                    else msg.ErrorDescription <- null; return! result (Some msg |> getView)
+                | None -> return! result (None |> getView)
+            | Error _  -> return! result (None |> getView)
         }
 
 let webApp : HttpFunc -> HttpContext -> HttpFuncResult =
