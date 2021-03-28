@@ -14,11 +14,12 @@ let migrate (ctx : Db.IdentityContext) =
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-let migrateDatabase<'db when 'db :> DbContext> (host : IHost) =
+let migrateDatabase<'db when 'db :> Db.IdentityContext> (host : IHost) =
     task {
         let scope = host.Services.CreateScope()
         let ctx = scope.ServiceProvider.GetRequiredService<'db>()
         do! ctx.Database.MigrateAsync()
+        do! ctx.EnsureSeedDataAsync()
     } :> Task
 
 let createHost args =

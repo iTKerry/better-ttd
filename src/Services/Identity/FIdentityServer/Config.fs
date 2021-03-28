@@ -22,6 +22,7 @@ let private betterttdClient =
     
     cli.RequireConsent <- false
     cli.AccessTokenLifetime <- 120
+    cli.EnableLocalLogin <- true
     
     cli.UpdateAccessTokenClaimsOnRefresh <- true
     

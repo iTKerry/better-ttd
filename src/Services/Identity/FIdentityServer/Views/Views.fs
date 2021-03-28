@@ -1,5 +1,6 @@
 ﻿module Views
 
+open System
 open System.ComponentModel.DataAnnotations
 open Giraffe
 open GiraffeViewEngine
@@ -7,6 +8,7 @@ open IdentityServer4.Models
 open Microsoft.AspNetCore.Http
 open ViewHelpers
 open Helpers
+open System.Linq
 
 let private (!?) x =
     toOption x
@@ -196,13 +198,35 @@ module Home =
         ]
         
 module Account =
-    type LoginViewModel =
+    type LoginInputModel =
         { [<Required>]
           Username      : string
           [<Required>]
           Password      : string
           RememberLogin : bool
           ReturnUrl     : string }
+    
+    type ExternalProvider =
+        { DisplayName : string
+          AuthenticationScheme : string }
+    
+    type LoginViewModel =
+        { ReturnUrl          : string
+          AllowRememberLogin : bool
+          Username           : string
+          EnableLocalLogin   : bool
+          ExternalProviders  : ExternalProvider list }
+          member this.VisibleExternalProviders =
+              this.ExternalProviders |> List.filter (fun x -> not (String.IsNullOrWhiteSpace(x.DisplayName)))
+          member this.IsExternalLoginOnly =
+              this.EnableLocalLogin = false && this.ExternalProviders.Length = 1
+          member this.ExternalLoginScheme =
+              if this.IsExternalLoginOnly
+              then
+                  match this.ExternalProviders.SingleOrDefault() |> toOption with
+                  | Some provider -> toOption provider.AuthenticationScheme
+                  | None -> None
+              else None
     
     let login (model : LoginViewModel) =
         div [ _class "login-page" ] [
@@ -211,37 +235,132 @@ module Account =
             ]
             
             div [ _class "row" ] [
-                div [ _class "col-sm-6" ] [
-                    div [ _class "card" ] [
-                        div [ _class "card-header" ] [
-                            h2 [] [ str "Local Account" ]
-                        ]
-                        
-                        div [ _class "card-body"] [
-                            form [ _action "/account/login"; _method "POST" ] [
-                                input [ _type "hidden"; _for "ReturnUrl"; _value model.ReturnUrl ]
-                                
-                                div [ _class "form-group" ] [
-                                    label [ _for "Username" ] [ str "Username" ]
-                                    input [ _class "form-control"; _placeholder "Username"; _for "Username"; _autofocus ]
-                                ]
-                                div [ _class "form-group" ] [
-                                    label [ _for "Password" ] [ str "Password" ]
-                                    input [ _type "password"; _class "form-control"; _placeholder "Password"; _for "Password"; _autocomplete "off" ]
-                                ]
-                                div [ _class "form-group" ] [
-                                    div [ _class "form-check" ] [
-                                        input [ _class "form-check-input"; _for "RememberLogin"]
-                                        label [ _class "form-check-label"; _for "RememberLogin"] [
-                                            str "Remember My Login"
-                                        ]
+                if model.EnableLocalLogin then
+                    div [ _class "col-sm-6" ] [
+                        div [ _class "card" ] [
+                            div [ _class "card-header" ] [
+                                h2 [] [ str "Local Account" ]
+                            ]
+                            
+                            div [ _class "card-body"] [
+                                form [ _action "/account/login"; _method "POST" ] [
+                                    input [ _type "hidden"; _for "ReturnUrl"; _value model.ReturnUrl ]
+                                    
+                                    div [ _class "form-group" ] [
+                                        label [ _for "Username" ] [ str "Username" ]
+                                        input [ _class "form-control"; _placeholder "Username"; _for "Username"; _autofocus ]
                                     ]
+                                    div [ _class "form-group" ] [
+                                        label [ _for "Password" ] [ str "Password" ]
+                                        input [ _type "password"; _class "form-control"; _placeholder "Password"; _for "Password"; _autocomplete "off" ]
+                                    ]
+                                    if model.AllowRememberLogin then
+                                        div [ _class "form-group" ] [
+                                            div [ _class "form-check" ] [
+                                                input [ _class "form-check-input"; _for "RememberLogin"]
+                                                label [ _class "form-check-label"; _for "RememberLogin"] [
+                                                    str "Remember My Login"
+                                                ]
+                                            ]
+                                        ]
+                                    else ()
+                                    button [ _class "btn btn-primary"; _name "button"; _value "login" ] [ str "Login" ]
+                                    button [ _class "btn btn-secondary"; _name "button"; _value "cancel" ] [ str "Cancel" ]
                                 ]
-                                button [ _class "btn btn-primary"; _name "button"; _value "login" ] [ str "Login" ]
-                                button [ _class "btn btn-secondary"; _name "button"; _value "cancel" ] [ str "Cancel" ]
                             ]
                         ]
                     ]
+                else ()
+                
+                if model.VisibleExternalProviders.Any() then
+                    div [ _class "col-sm-6" ] [
+                        div [ _class "card" ] [
+                            div [ _class "card-header" ] [
+                                h2 [] [ str "External Account" ]
+                            ]
+                            div [ _class "card-body" ] [
+                                ul [ _class "list-inline" ] [
+                                    for provider in model.ExternalProviders do
+                                        li [ _class "list-inline-item" ] [
+                                            a [ _class "btn btn-secondary"
+                                                _href $"/External/Challenge?scheme={provider.AuthenticationScheme}&returnUrl={model.ReturnUrl}" ] [
+                                                str provider.DisplayName
+                                            ]
+                                        ]
+                                ]
+                            ]
+                        ]
+                    ]
+                else ()
+                
+                if not model.EnableLocalLogin && model.VisibleExternalProviders.Any() then
+                    div [ _class "alert alert-warning" ] [
+                        strong [] [ str "Invalid login request" ]
+                        str " There are no login schemes configured for this request."
+                    ]
+                else ()
+            ]
+        ]
+        
+    type LogoutViewModel =
+        { LogoutId : string }
+        
+    let logout (model : LogoutViewModel) =
+        div [ _class "logout-page" ] [
+            div [ _class "lead" ] [
+                h1 [] [ str "logout" ]
+                p [] [ str "Would you like to logout of IdentityServer?" ]
+            ]
+            
+            form [ _action "/account/logout"; _method "POST" ] [
+                input [ _type "hidden"; _name "logoutId"; _value model.LogoutId ]
+                div [ _class "form-group" ] [
+                    button [ _class "btn btn-primary" ] [ str "Yes" ]
                 ]
+            ]
+        ]
+    
+    type LoggedOutViewModel =
+        { PostLogoutRedirectUri         : string option
+          ClientName                    : string
+          SignOutIframeUrl              : string option
+          AutomaticRedirectAfterSignOut : bool
+          LogoutId                      : string }
+        
+    let loggedOut (model : LoggedOutViewModel) =
+        [
+            div [ _class "logged-out-page" ] [
+                h1 [] [
+                    str "Logout "
+                    small [] [ str "You are now logged out" ]
+                ]
+                
+                match model.PostLogoutRedirectUri with
+                | Some postLogoutRedirectUri ->
+                    div [] [
+                        str "Click "
+                        a [ _class "PostLogoutRedirectUri"; _href postLogoutRedirectUri ] [ str "here" ]
+                        str " to return to the "
+                        span [] [ str model.ClientName ]
+                        str " application."
+                    ]
+                | None -> ()
+                
+                match model.SignOutIframeUrl with
+                | Some signOutIframeUrl ->
+                    iframe [ _width "0"; _height "0"; _class "signout"; _src signOutIframeUrl ] [ ]
+                | None -> ()
+            ]
+            
+            if model.AutomaticRedirectAfterSignOut
+            then script [ _src "/js/signout-redirect.js" ] []
+            else ()
+        ]
+        
+    let accessDenied =
+        div [ _class "container" ] [
+            div [ _class "lead" ] [
+                h1 [] [ str "Access Denied" ]
+                p [] [ str "You do not have access to that resource." ]
             ]
         ]
