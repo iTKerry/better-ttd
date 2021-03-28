@@ -1,8 +1,10 @@
 ﻿module App
 
 open System
+open System.Web
 open Giraffe
 open IdentityServer4
+open IdentityServer4.Models
 open IdentityServer4.Services
 open IdentityServer4.Stores
 open Microsoft.AspNetCore.Authentication
@@ -12,6 +14,7 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Logging
 open FSharp.Control.Tasks.V2.ContextInsensitive
 open Helpers
+open Microsoft.Extensions.Primitives
 
 let masterPage next ctx view =
     htmlView (Views.Shared.layout ctx view) next ctx
@@ -55,7 +58,8 @@ module Account =
     let private getDependencies (ctx : HttpContext) =
         ( ctx.GetService<IIdentityServerInteractionService>(),
           ctx.GetService<IClientStore>(),
-          ctx.GetService<IAuthenticationSchemeProvider>() )
+          ctx.GetService<IAuthenticationSchemeProvider>(),
+          ctx.GetService<IEventService>() )
     
     let private buildLoginViewModelAsync
         (interaction    : IIdentityServerInteractionService)
@@ -115,12 +119,11 @@ module Account =
                     return result
         }
 
-    let loginHandler : HttpHandler =
+    let loginGetHandler : HttpHandler =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             task {
                 let result = masterPage next ctx 
-                let (interaction, clientStore, schemeProvider) = getDependencies ctx
-                let x = ctx.GetQueryStringValue "returnUrl"
+                let (interaction, clientStore, schemeProvider, _) = getDependencies ctx
                 match ctx.GetQueryStringValue "returnUrl" with
                 | Ok returnUrl -> 
                     let! vm = buildLoginViewModelAsync interaction clientStore schemeProvider returnUrl
@@ -131,10 +134,49 @@ module Account =
                     return! text err next ctx
             }
 
+    let loginPostHandler : HttpHandler =
+        fun (next : HttpFunc) (ctx : HttpContext) ->
+            task {
+                let result = masterPage next ctx 
+                let (interaction, clientStore, schemeProvider, events) = getDependencies ctx
+                
+                let! body = ctx.ReadBodyFromRequestAsync()
+                let queryItems = HttpUtility.ParseQueryString(body)
+                let username = queryItems.Get("username")
+                let password = queryItems.Get("password")
+                let rememberLogin = queryItems.Get("RememberLogin")
+                let returnUrl = queryItems.Get("ReturnUrl")
+                let button = queryItems.Get("button")
+                
+                let! context = interaction.GetAuthorizationContextAsync(returnUrl)
+                let context = toOption context
+                
+                match button with
+                | "login" ->
+                    return! text "kek" next ctx
+                | _ ->
+                    match context with
+                    | Some context ->
+                        do! interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied)
+                        if not (context.RedirectUri.StartsWith("https", StringComparison.Ordinal)) &&
+                           not (context.RedirectUri.StartsWith("http", StringComparison.Ordinal))
+                        then
+                            ctx.Response.StatusCode <- 200
+                            ctx.Response.Headers.["Location"] <- StringValues ""
+                            return! { Views.Shared.RedirectUrl = returnUrl }
+                                    |> Views.Shared.redirect
+                                    |> result
+                        else return! redirectTo false returnUrl next ctx
+                    | None -> return! redirectTo false "/" next ctx
+            }
+    
     let routes =
         choose [
             GET >=> choose [
-                routeCi "/account/login" >=> loginHandler
+                routeCi "/account/login" >=> loginGetHandler
+            ]
+            POST >=> choose [
+                routeCi "/account/login" >=> loginPostHandler
             ]
         ]
         

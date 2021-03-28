@@ -98,7 +98,7 @@ module Shared =
     type RedirectViewModel = { RedirectUrl : string }
 
     let redirect (model : RedirectViewModel) =
-        [
+        div [] [
             div [ _class "redirect-page" ] [
                 div [ _class "lead" ] [
                     h1 [ ] [ str "You are now being returned to the application" ]
@@ -244,21 +244,21 @@ module Account =
                             
                             div [ _class "card-body"] [
                                 form [ _action "/account/login"; _method "POST" ] [
-                                    input [ _type "hidden"; _for "ReturnUrl"; _value model.ReturnUrl ]
+                                    input [ _type "hidden"; _name "ReturnUrl"; _value model.ReturnUrl ]
                                     
                                     div [ _class "form-group" ] [
                                         label [ _for "Username" ] [ str "Username" ]
-                                        input [ _class "form-control"; _placeholder "Username"; _for "Username"; _autofocus ]
+                                        input [ _class "form-control"; _placeholder "Username"; _name "Username"; _autofocus ]
                                     ]
                                     div [ _class "form-group" ] [
                                         label [ _for "Password" ] [ str "Password" ]
-                                        input [ _type "password"; _class "form-control"; _placeholder "Password"; _for "Password"; _autocomplete "off" ]
+                                        input [ _type "password"; _class "form-control"; _placeholder "Password"; _name "Password"; _autocomplete "off" ]
                                     ]
                                     if model.AllowRememberLogin then
                                         div [ _class "form-group" ] [
                                             div [ _class "form-check" ] [
                                                 input [ _class "form-check-input"; _for "RememberLogin"]
-                                                label [ _class "form-check-label"; _for "RememberLogin"] [
+                                                label [ _class "form-check-label"; _name "RememberLogin"] [
                                                     str "Remember My Login"
                                                 ]
                                             ]
