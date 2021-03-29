@@ -4,13 +4,14 @@ open System
 open System.Web
 open Giraffe
 open IdentityServer4
+open IdentityServer4.Events
 open IdentityServer4.Models
 open IdentityServer4.Services
 open IdentityServer4.Stores
 open Microsoft.AspNetCore.Authentication
 open Microsoft.AspNetCore.Hosting
-open Microsoft.Extensions.Hosting
 open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.Hosting
 open Microsoft.Extensions.Logging
 open FSharp.Control.Tasks.V2.ContextInsensitive
 open Helpers
@@ -59,7 +60,8 @@ module Account =
         ( ctx.GetService<IIdentityServerInteractionService>(),
           ctx.GetService<IClientStore>(),
           ctx.GetService<IAuthenticationSchemeProvider>(),
-          ctx.GetService<IEventService>() )
+          ctx.GetService<IEventService>(),
+          ctx.GetService<Db.IdentityContext>() )
     
     let private buildLoginViewModelAsync
         (interaction    : IIdentityServerInteractionService)
@@ -123,7 +125,7 @@ module Account =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             task {
                 let result = masterPage next ctx 
-                let (interaction, clientStore, schemeProvider, _) = getDependencies ctx
+                let (interaction, clientStore, schemeProvider, _, _) = getDependencies ctx
                 match ctx.GetQueryStringValue "returnUrl" with
                 | Ok returnUrl -> 
                     let! vm = buildLoginViewModelAsync interaction clientStore schemeProvider returnUrl
@@ -138,7 +140,7 @@ module Account =
         fun (next : HttpFunc) (ctx : HttpContext) ->
             task {
                 let result = masterPage next ctx 
-                let (interaction, clientStore, schemeProvider, events) = getDependencies ctx
+                let (interaction, _, _, events, db) = getDependencies ctx
                 
                 let! body = ctx.ReadBodyFromRequestAsync()
                 let queryItems = HttpUtility.ParseQueryString(body)
@@ -153,7 +155,50 @@ module Account =
                 
                 match button with
                 | "login" ->
-                    return! text "kek" next ctx
+                    match! UserRepository.areUserCredentialsValid(db, username, password) with
+                    | true ->
+                        match! UserRepository.getUserByName(db, username) with
+                        | Some user ->
+                            let clientId =
+                                context
+                                |> Option.map (fun c -> c.Client.ClientId)
+                                |> Option.defaultValue ""
+                            let event =
+                                UserLoginSuccessEvent
+                                    ( user.Username,
+                                      user.SubjectId,
+                                      user.Username,
+                                      clientId = clientId )
+                            
+                            do! events.RaiseAsync(event)
+                            
+                            let props =
+                                if rememberLogin = "true"
+                                then Some <| AuthenticationProperties
+                                                 ( ExpiresUtc = DateTimeOffset.UtcNow.Add(TimeSpan.FromDays(30.0)),
+                                                   IsPersistent = true )
+                                else None
+                            let issuer = IdentityServerUser(user.SubjectId, DisplayName = user.Username)
+
+                            do! ctx.SignInAsync(issuer, props |> Option.defaultValue null)
+
+                            match context with
+                            | Some context ->
+                                if not (context.RedirectUri.StartsWith("https", StringComparison.Ordinal)) &&
+                                   not (context.RedirectUri.StartsWith("http", StringComparison.Ordinal))
+                                then
+                                    ctx.Response.StatusCode <- 200
+                                    ctx.Response.Headers.["Location"] <- StringValues ""
+                                    return! { Views.Shared.RedirectUrl = returnUrl }
+                                            |> Views.Shared.redirect
+                                            |> result
+                                else return! redirectTo false returnUrl next ctx
+                            | None ->
+                                if (String.IsNullOrEmpty(returnUrl))
+                                then return! redirectTo false "/" next ctx
+                                else return! redirectTo false returnUrl next ctx
+                        | None -> return! text "kek" next ctx
+                    | false -> return! text "kek" next ctx
                 | _ ->
                     match context with
                     | Some context ->
